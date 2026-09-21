@@ -89,6 +89,8 @@ DEAD_COVER_TOKENS = [
     ("mbfill", _dead("mbfill"), "旧信箱的门板"),
     ("mbline", _dead("mbline"), "旧信箱的门扇描边"),
     ("cover-mark", _dead("cover-mark"), "旧的 mailbox-01 线稿容器"),
+    ("cap", _dead("cap"), "封面上的文字提示"),
+    ("--d", r"--d:[-\d.]+m?s", "信纸延迟的旧 CSS 变量（延迟已改由 JS 的 STAGGER 控制，CSS 里这份是死代码）"),
     ("resetMailbox", r"\bresetMailbox\b", "旧信箱开合 JS"),
     ("openMailbox", r"\bopenMailbox\b", "旧信箱开合 JS"),
     ("closeMailbox", r"\bcloseMailbox\b", "旧信箱开合 JS"),
@@ -105,13 +107,15 @@ MAIL_PAD = 14        # 漂浮振幅（|dx|≤9、|dy|≤11）＋漂浮时再转 
 LETTER_COUNT = 5     # 用户要求「大约 4、5 封」
 FLY_MS = 2500        # 用户指定：每封信飘出 2.5 秒
 MIN_DY_SPREAD = 80   # 5 封信的纵向跨度下限，低于这个数就不叫「高低错落」
+ENV_TOP_MIN = 190    # 信封顶边下移后的下限（用户要求「整体下移一点」）
+LEFT_BEIGE = "#EDE0C1"   # 信封的米色
 
 
 def mail_geometry(src: str):
     """从 CSS 里解析信纸落点，算出每封信在屏幕坐标下的静态包围盒。"""
     m = re.search(r"\.envelope\{[^}]*?right:(\d+)px;top:(\d+)px;width:(\d+)px", src)
     mm = re.search(r"\.mails\{[^}]*?right:(\d+)px;top:(\d+)px;width:(\d+)px", src)
-    l = re.search(r"\.letter\{[^}]*?top:(\d+)px;width:(\d+)px;height:(\d+)px", src)
+    l = re.search(r"\.letter\{[^}]*?top:(-?\d+)px;width:(\d+)px;height:(\d+)px", src)
     ml = re.search(r"\.letter\{[^}]*?margin-left:(-?\d+)px", src)
     if not (m and mm and l and ml):
         return None
@@ -264,18 +268,28 @@ def main() -> int:
                 problems.append("deck 封面：又出现了 SVG → 用户要求删掉 SVG 图片，信封要纯 CSS 画")
             if "data:image" in cover:
                 problems.append("deck 封面：又内嵌了图片 → 用户已要求删除首页背景图")
-            for cls, why in (("env-body", "外框"), ("env-flap", "上盖"), ("cap", "开口提示")):
+            for cls, why in (("env-sway", "摇晃层"), ("env-shake", "震动层"), ("env-body", "外框"),
+                             ("env-inner", "内衬"), ("env-flap", "上盖")):
                 if f'class="{cls}"' not in cover:
                     problems.append(f"deck 封面：信封缺了{why}（.{cls}）")
             n_letters = len(re.findall(r'<div class="letter" data-i="', cover))
             if n_letters != LETTER_COUNT:
                 problems.append(f"deck 封面：信纸 {n_letters} 封（应为 {LETTER_COUNT}）")
-            if re.search(r'class="cap">点一下信封开口<', cover) is None:
-                problems.append("deck 封面：开口提示文案不是「点一下信封开口」")
             if re.search(r'class="envelope"[^>]*role="button"[^>]*tabindex="0"', cover) is None:
                 problems.append("deck 封面：信封不是可聚焦按钮（缺 role=button / tabindex=0）")
+            if "点一下" in cover:
+                problems.append("deck 封面：又出现了文字提示（「点一下…」）→ 已改成信封自己摇晃")
             notes.append(f"封面：无底图、无 SVG，纯 CSS 信封 + {n_letters} 封信")
         # 几何：5 封信的落点必须全在无字安全带里
+        # 先查「信封有没有下移」：它必须独立于几何解析 —— 一改 top，两个锚点就不同步，
+        # mail_geometry 直接返回 None，写在 else 里的断言反而永远走不到。
+        env_top_m = re.search(r"\.envelope\{[^}]*?top:(-?\d+)px", src)
+        if env_top_m is None:
+            problems.append("deck 封面信封：读不出 .envelope 的 top → 下移与否没法核")
+        else:
+            env_top = int(env_top_m.group(1))
+            if env_top < ENV_TOP_MIN:
+                problems.append(f"deck 封面信封：信封顶边在 y={env_top}（应 ≥ {ENV_TOP_MIN}）→ 没有下移")
         geo = mail_geometry(src)
         if geo is None:
             problems.append("deck 封面信封：解析不到 .envelope/.mails/.letter 的几何参数"
@@ -308,10 +322,77 @@ def main() -> int:
         # 上盖必须绕信封顶边掀开：transform-origin:50% 0，终态是 rotateX
         if re.search(r"\.env-flap\{[^}]*transform-origin:50% 0", src) is None:
             problems.append("deck 封面信封：上盖的 transform-origin 不是 50% 0 → 不是绕信封顶边掀开")
-        if re.search(r"\.envelope\.open \.env-flap\{transform:rotateX\(", src) is None:
-            problems.append("deck 封面信封：缺少 .envelope.open .env-flap 的 rotateX 终态")
-        if re.search(r"\.envelope\.open \.env-flap::before[^{]*\{opacity:", src) is None:
+        if re.search(r"\.envelope\.lid \.env-flap\{transform:rotateX\(", src) is None:
+            problems.append("deck 封面信封：缺少 .envelope.lid .env-flap 的 rotateX 终态")
+        if re.search(r"\.envelope\.lid \.env-flap::before[^{]*\{opacity:", src) is None:
             problems.append("deck 封面信封：上盖掀开后没有压暗 → 翻折方向读不出来")
+        # 米色：外框、上盖、内衬三条线必须走同一个变量
+        if f"--beige:{LEFT_BEIGE}" not in src:
+            problems.append(f"deck 封面信封：--beige 不是 {LEFT_BEIGE}（用户要求信封改成米色）")
+        if re.search(r"\.env-body\{[^}]*border:1\.5px solid var\(--beige\)", src) is None:
+            problems.append("deck 封面信封：外框描边没有用 --beige")
+        if re.search(r"\.env-flap::before,\.env-flap::after,\.env-inner::before,\.env-inner::after\{[^}]*background:var\(--beige\)", src) is None:
+            problems.append("deck 封面信封：上盖/内衬的线没有用 --beige")
+        # 内衬：合上时隐在外盖底下，掀开后留在信封里 —— 不然打开的信封里是一块空白
+        if re.search(r"\.env-flap,\.env-inner\{", src) is None:
+            problems.append("deck 封面信封：内衬没有和上盖共用同一套坐标 → 两条 V 不会重合")
+        dim = re.search(r"\.env-inner::before,\.env-inner::after\{opacity:([\d.]+)", src)
+        if dim is None:
+            problems.append("deck 封面信封：内衬没有做压暗 → 合上时会透出来")
+        elif float(dim.group(1)) >= 0.6:
+            problems.append(f"deck 封面信封：内衬的 opacity={dim.group(1)}（应 < 0.6）"
+                            f" → 合上时会从外盖下面透出来")
+        inn = re.search(r'class="env-inner"', cover)
+        fl = re.search(r'class="env-flap"', cover)
+        if inn and fl and inn.start() > fl.start():
+            problems.append("deck 封面信封：内衬排在上盖之后 → 会盖住上盖，合上时看不见外盖")
+        # 摇晃 + 震动：只在「点过之前」跑，两层分开才不会互相覆盖 transform
+        for pat, why in ((r"@keyframes env-sway\{", "摇晃关键帧 env-sway"),
+                         (r"@keyframes env-buzz\{", "震动关键帧 env-buzz"),
+                         (r"\.envelope:not\(\.used\) \.env-sway\{animation:env-sway", "摇晃层的摇晃"),
+                         (r"\.envelope:not\(\.used\) \.env-shake\{animation:env-buzz", "内层的震动")):
+            if re.search(pat, src) is None:
+                problems.append(f"deck 封面信封：缺少{why} → 没点过之前不会晃")
+        # 摇晃不能挂回 .envelope：入场淡入是挂在它身上的 WAAPI 动画，写死了 transform，
+        # WAAPI 压过 CSS animation → 摇晃会变成「有动画名但没有位移」的假动作
+        if re.search(r"\.envelope:not\(\.used\)\{animation:env-sway", src):
+            problems.append("deck 封面信封：摇晃挂回了 .envelope 本体 → 被入场 WAAPI 动画压掉，动不起来（应挂 .env-sway）")
+        if "classList.remove('used')" in src:
+            problems.append("deck 封面信封：used 类被移除了 → 合上之后又会开始摇晃（用户要求保持静止）")
+        if re.search(r"box\.classList\.add\('used'\)", src) is None:
+            problems.append("deck 封面信封：第一次点击没有给信封打上 used（停止摇晃的开关）")
+        for pat, why in ((r"body\.noanim \.env-sway,body\.noanim \.env-shake\{animation:none",
+                          "按 A 关动效时停掉摇晃"),
+                         (r"prefers-reduced-motion: reduce\)\{[\s\S]{0,400}?\.env-sway,\.env-shake\{animation:none",
+                          "系统「减弱动态效果」时停掉摇晃"),
+                         (r"@media print\{[\s\S]*?\.env-sway,\.env-shake\{animation:none",
+                          "打印时停掉摇晃")):
+            if re.search(pat, src) is None:
+                problems.append(f"deck 封面信封：缺少{why}的兜底")
+        # 时序：先完全掀盖 → 再放信；先全部收信 → 再合盖
+        door = re.search(r"var DOOR_MS=(\d+);", src)
+        if door is None or int(door.group(1)) < 600:
+            problems.append(f"deck 封面信封：DOOR_MS={door.group(1) if door else '缺'}ms"
+                            f"（应 ≥ 600ms，也就是 CSS 里那 .6s 的掀盖过渡）")
+        if re.search(r"launchLetters\(slide\);\},DOOR_MS\)", src) is None:
+            problems.append("deck 封面信封：信没有等上盖完全掀开才飞（用户要求先展开、再逐一飞出）")
+        # 合盖那一块要整个看：必须排在最后一封信收完之后，先摘类再撤动画，顺序不能反
+        shut = re.search(r"later\(box,function\(\)\{([\s\S]{0,400}?)\}\,last\+40\);", src)
+        if shut is None:
+            problems.append("deck 封面信封：合盖没有排在最后一封信收完之后（应 last+40ms）")
+        else:
+            body = shut.group(1)
+            if "remove('closing','open','lid')" not in body:
+                problems.append("deck 封面信封：上盖没有等信全部收回才合上（用户要求先收信、再关信封）")
+            elif "cancel()" not in body or body.index("cancel()") < body.index("remove("):
+                problems.append("deck 封面信封：收信的动画没有在 .open 摘掉之后才撤 → 会掉回静态规则、信当场复现")
+        # 掀盖那 .64s 里第二次点击必须能被接住：只认 .open 的话，这 640ms 内的点击会被吞掉
+        if re.search(r"if\(box\.classList\.contains\('open'\)\|\|box\.classList\.contains\('opening'\)\)\{closeEnvelope", src) is None:
+            problems.append("deck 封面信封：掀盖途中的第二次点击会被吞掉（只认 .open）→ 反悔不了")
+        if re.search(r"if\(!box\|\|box\.classList\.contains\('closing'\)\)return;", src) is None:
+            problems.append("deck 封面信封：closeEnvelope 的守卫拦掉了掀盖中的取消（应只拦 .closing）")
+        if re.search(r"var from=getComputedStyle\(el\)\.transform;", src) is None:
+            problems.append("deck 封面信封：收信没有从「当前所在位置」接上 → 半途点击会跳回去")
         # 全篇不该再残留任何旧信箱/旧线稿的代码（已去掉注释，注释里提类名不算）
         for label, pat, why in DEAD_COVER_TOKENS:
             if label in DECK_WIDE_DEAD and re.search(pat, bare):
