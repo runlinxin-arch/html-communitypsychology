@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文明不是道德问题，是信息问题｜第六章《社区的文明观》阅读汇报</title>
+<style>
+:root{
+  --anim-in:200ms; --anim-out:140ms; --stagger:70ms;
+  --indigo:#1C004F; --indigo-soft:#2A0B6B; --bone:#E5E1D6; --bone-soft:#F1EEE5;
+  --ink:#191036; --muted:#6E6880; --accent:#7126FF;
+  --line-l:rgba(25,16,54,.10); --line-d:rgba(229,225,214,.12);
+  --card:#FFFFFF; --cardline:rgba(25,16,54,.14);
+  --sans:"PingFang SC","Hiragino Sans GB","Heiti SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif CJK SC","SimSun",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#0E0029;color:var(--ink);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;transform-origin:center center;position:relative}
+.slide{position:absolute;inset:0;width:1280px;height:720px;padding:64px 72px;display:flex;flex-direction:column;
+  background:var(--bone);color:var(--ink);overflow:hidden;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity var(--anim-out) ease, visibility 0s linear var(--anim-out)}
+.slide.on{opacity:1;visibility:visible;pointer-events:auto;z-index:2;
+  transition:opacity var(--anim-in) ease, visibility 0s linear 0s}
+.slide.dark{background:var(--indigo);color:var(--bone)}
+.slide::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(to right,var(--line-l) 1px,transparent 1px),linear-gradient(to bottom,var(--line-l) 1px,transparent 1px);
+  background-size:64px 64px;opacity:.75}
+.slide.dark::after{background-image:linear-gradient(to right,var(--line-d) 1px,transparent 1px),linear-gradient(to bottom,var(--line-d) 1px,transparent 1px);opacity:.6}
+.slide>*{position:relative;z-index:2}
+.slide .notes{display:none}
+.anim{opacity:0;transform:translateY(10px);transition:opacity var(--anim-in) ease,transform var(--anim-in) ease;
+  transition-delay:calc(var(--i,0) * var(--stagger))}
+.slide.ready .anim{opacity:1;transform:none}
+body.noanim .anim{opacity:1!important;transform:none!important;transition:none!important}
+body.noanim .slide{transition:none!important}
+@media (prefers-reduced-motion: reduce){.anim{opacity:1!important;transform:none!important;transition:none!important}}
+.kicker{font-size:13px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:14px}
+.slide.dark .kicker{color:rgba(229,225,214,.66)}
+.kicker .num{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
+.kicker .bar{flex:0 0 42px;height:1px;background:currentColor;opacity:.4}
+h1{font-family:var(--serif);font-weight:600;line-height:1.16;letter-spacing:.01em}
+h2{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1.25;margin-top:22px;letter-spacing:.01em}
+h3{font-family:var(--sans);font-weight:600;font-size:18px;line-height:1.5}
+p,li{font-size:17.5px;line-height:1.78}
+.lead{font-size:20px;line-height:1.7}
+.small{font-size:13.5px;line-height:1.7;color:var(--muted)}
+.slide.dark .small{color:rgba(229,225,214,.68)}
+.src{font-family:var(--serif);font-size:13px;color:var(--muted);letter-spacing:.02em}
+.slide.dark .src{color:rgba(229,225,214,.6)}
+.body{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;gap:22px;margin-top:14px}
+.row{display:flex;gap:26px}
+.col{flex:1 1 0;min-width:0}
+.card{background:var(--card);border:1px solid var(--cardline);border-radius:14px;padding:20px 22px}
+.slide.dark .card{background:rgba(229,225,214,.06);border-color:rgba(229,225,214,.18)}
+.card h3{margin-bottom:8px}
+.big{font-family:var(--serif);font-size:44px;line-height:1.3;letter-spacing:.01em}
+.bigger{font-family:var(--serif);font-size:34px;line-height:1.42}
+.accent{color:var(--accent)}
+.rule{height:1px;background:currentColor;opacity:.18;margin:18px 0}
+.quote{font-family:var(--serif);font-size:19px;line-height:1.85;border-left:3px solid var(--accent);padding:4px 0 4px 20px}
+.quote .who{display:block;font-family:var(--sans);font-size:12.5px;color:var(--muted);margin-top:10px;letter-spacing:.04em}
+.slide.dark .quote .who{color:rgba(229,225,214,.62)}
+ul{list-style:none}
+ul li{position:relative;padding-left:20px;margin-bottom:10px}
+ul.tight li{font-size:13.5px;line-height:1.55;margin-bottom:7px}
+ul li::before{content:"";position:absolute;left:0;top:.68em;width:7px;height:1px;background:var(--accent)}
+.nums li::before{display:none}
+.nums li{padding-left:0;display:flex;gap:14px;align-items:baseline}
+.nums .idx{font-family:var(--serif);font-size:15px;color:var(--accent);flex:0 0 26px;letter-spacing:.06em}
+.footer{position:absolute;left:72px;right:72px;bottom:34px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;z-index:3}
+.tag{display:inline-block;font-size:12px;letter-spacing:.06em;border:1px solid currentColor;border-radius:999px;padding:3px 12px;opacity:.62}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+figure{margin:0}
+figure img{display:block;width:100%;height:auto;border-radius:10px}
+figcaption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
+.slide.dark figcaption{color:rgba(229,225,214,.6)}
+.placard{position:absolute;right:74px;top:150px;width:268px;background:rgba(229,225,214,.94);color:var(--indigo);
+  border-radius:8px;padding:16px 18px;transform:rotate(3.5deg);box-shadow:0 18px 40px rgba(0,0,0,.38);z-index:3}
+.placard .t{font-family:var(--serif);font-size:15px;letter-spacing:.14em;text-align:center}
+.placard .l{height:7px;background:rgba(28,0,79,.16);border-radius:2px;margin-top:9px}
+.placard .cap{font-size:11.5px;line-height:1.5;margin-top:12px;color:rgba(28,0,79,.72);border-top:1px solid rgba(28,0,79,.18);padding-top:9px}
+.cover-bg{position:absolute;inset:0;background-size:cover;background-position:center 62%;z-index:0}
+.cover-veil{position:absolute;inset:0;z-index:1;background:
+  linear-gradient(100deg,rgba(28,0,79,.94) 0%,rgba(28,0,79,.86) 42%,rgba(28,0,79,.62) 100%)}
+.credit{font-size:11px;letter-spacing:.03em;color:rgba(229,225,214,.5)}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;font-size:13px;line-height:1.6;padding:6px 10px;border-bottom:1px solid var(--line-l);vertical-align:top}
+th{font-weight:600;color:var(--muted);letter-spacing:.04em}
+.slide.dark th,.slide.dark td{border-bottom-color:var(--line-d)}
+a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45)}
+.toc{display:flex;gap:10px;flex-wrap:wrap}
+.cites{columns:2;column-gap:36px}
+.cites li{break-inside:avoid;margin-bottom:7px}
+.toc span{font-size:12.5px;padding:4px 11px;border:1px solid var(--cardline);border-radius:999px;color:var(--muted)}
+#ui{position:fixed;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.10);z-index:50}
+#bar{height:100%;width:0;background:var(--accent);transition:width .25s ease}
+#pager{position:fixed;right:18px;bottom:16px;z-index:50;font-size:12px;letter-spacing:.16em;color:rgba(229,225,214,.62);font-family:var(--serif)}
+#hint{position:fixed;left:18px;bottom:16px;z-index:50;font-size:11.5px;letter-spacing:.06em;color:rgba(229,225,214,.42)}
+#notes{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(1120px,94vw);max-height:34vh;overflow:auto;
+  background:rgba(12,2,34,.96);border:1px solid rgba(229,225,214,.2);border-bottom:none;border-radius:12px 12px 0 0;
+  padding:16px 20px;z-index:60;display:none;color:var(--bone)}
+#notes.on{display:block}
+#notes h4{font-family:var(--sans);font-size:12px;letter-spacing:.18em;color:var(--accent);margin-bottom:10px}
+#notes p{font-size:14.5px;line-height:1.85;color:rgba(229,225,214,.92)}
+@media print{
+  @page{size:1280px 720px;margin:0}
+  body{overflow:visible;background:#fff}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;width:auto;height:auto;position:static}
+  .slide{position:relative;inset:auto;display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;transition:none!important;break-after:page;page-break-after:always}
+  .anim{opacity:1!important;transform:none!important;transition:none!important}
+  .slide:last-child{break-after:auto}
+  #ui,#pager,#hint,#notes{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- ============ P0 封面 ============ -->
+<section class="slide dark on">
+  <div class="cover-bg" style="background-image:url('__COVER__')"></div>
+  <div class="cover-veil"></div>
+  <div class="kicker" style="margin-top:6px"><span class="num">VI</span><span class="bar"></span><span>Reading Report</span></div>
+  <h1 style="font-size:66px;margin-top:auto;max-width:820px">文明不是道德问题，<br>是信息问题</h1>
+  <p class="lead" style="margin-top:22px;color:rgba(229,225,214,.86)">第六章《社区的文明观》阅读汇报</p>
+  <div class="rule" style="margin-top:26px;max-width:520px"></div>
+  <p class="small" style="letter-spacing:.06em">汇报人　辛润林 · 瞿绍卿 · 郭子傅 · 李伟烨　｜　社区心理学　｜　2026 年 11 月</p>
+  <div class="footer">
+    <span class="credit">底图：徐扬《乾隆南巡图》卷六（局部），1770，大都会艺术博物馆，公共领域</span>
+  </div>
+  <div class="placard">
+    <div class="t">居 民 公 约</div>
+    <div class="l"></div><div class="l" style="width:88%"></div><div class="l" style="width:94%"></div><div class="l" style="width:76%"></div>
+    <div class="cap">贴在物业楼下和每栋楼的电梯旁。<br>我住了十年，一条也说不出来。</div>
+  </div>
+  <aside class="notes" data-time="0:00–0:20">
+    <h4>0:00–0:20 ｜ 开场</h4>
+    <p>「老师、同学好，我讲第六章《社区的文明观》。读完这一章，我最想说的是一句话：文明不是道德问题，是信息问题。这句话是我自己读出来的，不是书上的原话。接下来我用书里的材料和小区里的三件事，把它讲清楚。先看这一章是怎么开头的。」</p>
+  </aside>
+</section>
+
+<!-- ============ P1 一个苹果 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">01</span><span class="bar"></span><span>一个苹果</span></div>
+  <div class="body">
+    <div class="quote">
+      2018 年初，在广东省东莞市某小区，一名 3 个月大的女婴被高空坠落的苹果砸中，颅脑损伤，右脑可能失去所有功能。2017 年 7 月，一位年轻女士下班回家，在小区楼下被一把从天而降的「武士刀」砸中头部。
+      <span class="who">教材第六章开篇案例，p.124</span>
+    </div>
+    <div>
+      <p class="big">这一章不问「这人怎么这么缺德」。</p>
+      <p class="big" style="margin-top:10px">它问：<span class="accent">什么条件下，会有人把东西扔出窗外。</span></p>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="small">我的读法：这不是一个道德故事，是一个条件故事。</span>
+    <span class="src">124</span>
+  </div>
+  <aside class="notes" data-time="0:20–1:00">
+    <h4>0:20–1:00 ｜ 抛出问题</h4>
+    <p>「一个苹果，一把武士刀，都是从楼上掉下来的。书里没有骂人，它接着往下问：什么条件下，会有人把东西扔出窗外？这一问，把整个第六章的方向定了——它不讨论谁缺德，它讨论条件。读完这一章我意识到，它想说的三件事，其实都是同一个词：看得见。」</p>
+  </aside>
+</section>
+
+<!-- ============ P2 本章地图 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">02</span><span class="bar"></span><span>本章地图</span></div>
+  <h2>三个词，一层套一层</h2>
+  <div class="body" style="gap:14px">
+    <div class="grid3">
+      <div class="card">
+        <h3>文明 <span class="src">p.124–125</span></h3>
+        <p class="small" style="font-size:14.5px">文化所达到的一个高级层次；文化可以向下，文明的动态变化向上。</p>
+      </div>
+      <div class="card">
+        <h3>文明观 <span class="src">p.129–130</span></h3>
+        <p class="small" style="font-size:14.5px">对优秀文化成果所持有的信念和看法。社会层面是社会风气，个人层面是内化了的价值观。</p>
+      </div>
+      <div class="card">
+        <h3>社区文明观 <span class="src">p.130</span></h3>
+        <p class="small" style="font-size:14.5px">生活、工作在社区中的人们，对社区文明程度有关的信念和看法。</p>
+      </div>
+    </div>
+    <p class="small">四个特性：指引性 · 评价性 · 综合性 · 交互性（p.131）</p>
+    <div class="rule" style="margin:6px 0"></div>
+    <p class="lead">教材在第 130 页把「民间规约」写进社区文明观的来源里——它最古老的样子之一，是北宋的乡约。（见附录 2）</p>
+    <p class="big" style="font-size:34px">这四个特性里，三个都在说同一件事：<span class="accent">看得见</span>。</p>
+  </div>
+  <div class="footer">
+    <span class="small">我的问题：在一个邻里互不相识的社区里，这套东西还看得见吗？</span>
+    <span class="src">124–131</span>
+  </div>
+  <aside class="notes" data-time="1:00–1:50">
+    <h4>1:00–1:50 ｜ 我读到了什么</h4>
+    <p>「这一章的架子是三个词：文明、文明观、社区文明观。文明是文化的高级层次；文明观是你对优秀文化成果的信念；落到社区，就是居民对社区文明程度的看法。书里给了四个特性——指引性、评价性、综合性、交互性。其中三个都在说同一件事：看得见。别人看得见你，你也看得见别人，评价才有载体。另外书里有一处我很在意：第 130 页把『民间规约』写进社区文明观的来源里。民间规约最古老的样子之一，是北宋的乡约，我放在附录里。我的问题就从这里开始：在邻里互不相识的社区里，这套东西还看得见吗？」</p>
+  </aside>
+</section>
+
+<!-- ============ P3 责任先于自由 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">03</span><span class="bar"></span><span>这本书的底子</span></div>
+  <h2>为什么中国社区讲「礼」</h2>
+  <div class="body" style="gap:16px">
+    <div class="grid2">
+      <div class="card">
+        <h3>人与自然 <span class="src">p.128</span></h3>
+        <p class="small" style="font-size:14.5px">中华文明：人是自然的一部分，目标不是统治自然，而是调整、改造、保护自然。<br>西方文明：人高于自然，在征服自然中求得生存。</p>
+      </div>
+      <div class="card">
+        <h3>人与人 <span class="src">p.129</span></h3>
+        <p class="small" style="font-size:14.5px">中华文明：责任先于自由、义务先于权利、群体高于个人、和谐高于冲突。<br>西方文明：个人权利优先，个人权利先于集体目标和社会共善。</p>
+      </div>
+    </div>
+    <p class="big" style="font-size:32px">「礼」规定的不是每个人拥有什么，<br>而是彼此之间<span class="accent">应该怎么做</span>。</p>
+    <p class="small">于是问题变成：一套讲义务、讲分寸的规范，靠什么让人真的照着做？</p>
+  </div>
+  <div class="footer"><span class="small">教材第一节，中西方文明的两条差异轴</span><span class="src">128–129</span></div>
+  <aside class="notes" data-time="1:50–2:30">
+    <h4>1:50–2:30 ｜ 这一章的底子</h4>
+    <p>「书里先花了两页讲中西方文明的差异：一个讲和谐、讲责任先于自由、义务先于权利；一个讲个人权利优先。这不是闲笔。它解释了为什么中国社区讲的『礼』，重点不在你拥有什么，而在你该怎么做。但这也带来一个问题：讲义务的规范，比讲权利的规范更难执行——因为它没法靠打官司来兑现。那它靠什么？」</p>
+  </aside>
+</section>
+
+<!-- ============ P4 三个矛盾 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">04</span><span class="bar"></span><span>三个矛盾</span></div>
+  <h2>书里列的三对矛盾，其实是一件事</h2>
+  <div class="body" style="gap:16px">
+    <div class="grid3">
+      <div class="card">
+        <h3>愚昧与科学 <span class="src">p.137</span></h3>
+        <p class="small" style="font-size:13.5px">愚昧＝缺乏知识、不明事理，容易轻信谣言、偏爱道听途说。化解靠知识教育。</p>
+      </div>
+      <div class="card">
+        <h3>个人利益与公共利益 <span class="src">p.138</span></h3>
+        <p class="small" style="font-size:13.5px">居住方式从宗族聚集、彼此熟悉、沾亲带故，发展到左邻右舍都是陌生人；社区成员之间长期的重复性博弈减少了。</p>
+      </div>
+      <div class="card">
+        <h3>短期利益与长期利益 <span class="src">p.138</span></h3>
+        <p class="small" style="font-size:13.5px">深夜播放高音量音乐、高空抛掷垃圾、随意丢弃有害垃圾——用短期的方便，换长期的代价。</p>
+      </div>
+    </div>
+    <div class="rule" style="margin:4px 0"></div>
+    <p class="big" style="font-size:34px">三对矛盾＝三扇「看不见」：<br><span class="accent">看不见知识、看不见他人、看不见将来。</span></p>
+  </div>
+  <div class="footer">
+    <span class="small">三张卡片是教材原文；下面这行「三扇看不见」是我的读法。</span>
+    <span class="src">137–138</span>
+  </div>
+  <aside class="notes" data-time="2:30–3:20">
+    <h4>2:30–3:20 ｜ 我对这一章的重述</h4>
+    <p>「书里列了三对矛盾：愚昧和科学、个人利益和公共利益、短期利益和长期利益。我把它们读成三扇看不见。第一扇，看不见知识——所以靠谣言和道听途说。第二扇，看不见他人——书里那句我印象最深：居住方式从宗族聚集、彼此熟悉、沾亲带故，发展到左邻右舍都是陌生人；长期的重复性博弈减少了。看不见他人，公共利益就守不住。第三扇，看不见将来——深夜放音乐、高空抛物，都是把成本推给以后的自己和别人。接下来三页，书里给的三组办法，恰好是在把这三扇看不见一扇一扇打开。」</p>
+  </aside>
+</section>
+
+<!-- ============ P5 看得见的环境 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">05</span><span class="bar"></span><span>看得见的环境</span></div>
+  <h2>环境是最便宜的那个说服者</h2>
+  <div class="body" style="gap:18px;flex-direction:row;align-items:center">
+    <div class="col" style="flex:0 0 430px">
+      <figure>
+        <img src="__CANA__" alt="威尼斯圣马可广场">
+        <figcaption>卡纳莱托《圣马可广场》，1720 年代末，大都会艺术博物馆，公共领域。<br>一个被持续维护的公共空间：铺装、廊柱、人流——环境本身在告诉人该怎么做。</figcaption>
+      </figure>
+    </div>
+    <div class="col">
+      <ul>
+        <li><b>环境的洁净程度会影响个体的道德行为。</b>难闻的气味、令人生厌的环境会提高道德上的严苛程度；空气清新会促使个体保持整洁有序，更可能表现出互惠与慈善。<span class="src">（Liljenquist et al., 2010；p.144–145）</span></li>
+        <li><b>无序传递的是信息：</b>「无人关心、无人管控、不负后果」。<span class="src">p.145</span></li>
+        <li><b>破窗理论：</b>一扇窗户坏了没人修，其他窗户很快也会被损坏——因为损坏本身表明没人在乎。<span class="src">（Wilson &amp; Kelling, 1982；p.145）</span></li>
+        <li><b>有实验证据：</b>乱扔垃圾、乱停自行车等造成的无序环境，容易诱发出偷窃这类不法行为。<span class="src">（Keizer et al., 2008；p.145）</span></li>
+      </ul>
+      <p class="lead" style="margin-top:6px">所以书里那句我记最牢的话是：管理混乱、脏乱差的社区里，人们会说<span class="accent">「扔了就扔了吧，也没什么大不了的」</span>（p.131）。</p>
+    </div>
+  </div>
+  <div class="footer"><span class="small">教材建设途径·社区①：物理环境的整洁有序</span><span class="src">144–145</span></div>
+  <aside class="notes" data-time="3:20–4:10">
+    <h4>3:20–4:10 ｜ 第一扇：环境</h4>
+    <p>「书里讲文明社区怎么建，第一条不是宣传，是环境：物理环境的整洁有序。它给了三条证据。一，环境的洁净程度会影响道德行为，难闻气味会让人变得更严苛，空气清新会让人更愿意互惠。二，无序本身在传递信息——无人关心、无人管控、不负后果。三，破窗理论和 Keizer 2008 的实验：乱扔垃圾、乱停自行车，会诱发偷窃。书里还写了一句很实在的话：管理混乱、脏乱差的社区里，居民会说『扔了就扔了吧，也没什么大不了的』。所以环境是最便宜的那个说服者：它不跟你讲道理，它直接改变你的判断。」</p>
+  </aside>
+</section>
+
+<!-- ============ P6 看得见的别人 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">06</span><span class="bar"></span><span>看得见的别人</span></div>
+  <h2>两种规则，一种靠人看，一种靠你看别人</h2>
+  <div class="body" style="gap:16px">
+    <div class="grid2">
+      <div class="card">
+        <h3>描述性规则 <span class="src">p.145</span></h3>
+        <p class="small" style="font-size:14.5px">在一个特定情境中，<b>大多数人是怎么做的</b>。影响方式类似从众：大多数人怎么做，我就怎么做。靠模仿、复制别人的行为起作用，维持积极行为比命令性规则更有效。</p>
+      </div>
+      <div class="card">
+        <h3>命令性规则 <span class="src">p.145</span></h3>
+        <p class="small" style="font-size:14.5px">在一个特定情境中，<b>应该怎么做</b>。它和社会评价绑在一起，奖惩机制在其中起重要作用；遵守时人会更多地考虑他人和社会的评价。</p>
+      </div>
+    </div>
+    <div class="quote" style="font-size:17.5px">
+      告知居民自己家和所在社区的日均用电量，可能促使耗电多的家庭减少消耗；但也可能促使耗电少的家庭增加消耗。此时，用表示赞赏的笑脸图标起到的道德奖赏作用，可以继续维持低消耗家庭的低用电量。
+      <span class="who">教材 p.146（Schultz et al., 2007）</span>
+    </div>
+    <p class="big" style="font-size:31px">命令性规则要生效，得有人在看；<br>描述性规则只要求一件事——<span class="accent">你能看见别人。</span></p>
+  </div>
+  <div class="footer"><span class="small">教材建设途径·社区②：科学文化知识的传播</span><span class="src">145–146</span></div>
+  <aside class="notes" data-time="4:10–5:00">
+    <h4>4:10–5:00 ｜ 第二扇：别人</h4>
+    <p>「第二条途径是传播知识，书里把规则分成两种。描述性规则说大多数人怎么做，靠模仿和从众起作用。命令性规则说应该怎么做，它和社会评价、奖惩绑在一起。书里举了用电量的例子：只告诉你别人用多少电，耗电多的家庭会减少，但耗电少的家庭反而会多用——所以后面还要加一个笑脸图标，用道德奖赏把好行为稳住。这就说明：命令性规则要生效，需要有人在看；描述性规则只要求你能看见别人。而这两样，恰好都是熟人社区天然具备、陌生人社区天然缺失的东西。」</p>
+  </aside>
+</section>
+
+<!-- ============ P7 看得见的将来 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">07</span><span class="bar"></span><span>看得见的将来</span></div>
+  <h2>把未来的自己拉近，人才会替未来买单</h2>
+  <div class="body" style="gap:14px">
+    <ul class="nums">
+      <li><span class="idx">01</span><div><b>转变动机</b>——从「不得不讲文明」转变为「我想要讲文明」。做不想做的事，体验到的价值和绩效都更低；出于自己选择时，投入的努力更多。<span class="src">p.142–143</span></div></li>
+      <li><span class="idx">02</span><div><b>换位思考</b>——道德事件发生在时空上较远时，人更容易做出功利的判断；较近时，才更容易把别人的得失看成自己的得失。观点采择能拉近人与人之间的心理距离。<span class="src">p.143</span></div></li>
+      <li><span class="idx">03</span><div><b>培养远见卓识</b>——人会把现在的自己看成付出者、把未来的自己看成受益者，于是低估未来的结果，产生短视行为。未来情景预见、自我控制与延迟满足，可以把现在与未来拉近。<span class="src">（Hershfield, 2011；p.143–144）</span></div></li>
+      <li><span class="idx">04</span><div><b>提升进取心</b>——希望、热情、自信、勇气；让居民全程参与文明社区建设的问题发现与问题解决，把决策权交给最了解社区的人。<span class="src">p.144</span></div></li>
+    </ul>
+    <div class="rule" style="margin:2px 0"></div>
+    <p class="big" style="font-size:30px">前两页把「环境」和「别人」拉近了；这一页要把<span class="accent">「将来」</span>也拉近。</p>
+  </div>
+  <div class="footer"><span class="small">教材建设途径·个人文明行为的养成</span><span class="src">142–144</span></div>
+  <aside class="notes" data-time="5:00–5:50">
+    <h4>5:00–5:50 ｜ 第三扇：将来</h4>
+    <p>「第三条线是对个人的，书里给了四条：转变动机，从『不得不』变成『我想要』；换位思考，用观点采择把人和人的心理距离拉近；培养远见卓识，书里说得很形象——人总把现在的自己当成付出的人，把未来的自己当成享受的人，所以会低估后果，还给出一个办法叫未来情景预见，就是让你先想象未来的结果；最后是提升进取心，希望、热情、自信、勇气，而且要居民全程参与。四条看起来不一样，其实在做同一件事：把将来的自己拉近到现在。人只有看得见将来，才会替将来买单。」</p>
+  </aside>
+</section>
+
+<!-- ============ P8 我的三行观察 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">08</span><span class="bar"></span><span>我住的两个小区</span></div>
+  <h2>三行观察</h2>
+  <div class="body" style="gap:14px">
+    <div class="card" style="padding:16px 20px">
+      <p style="font-size:16.5px"><b>① 公约贴了两处，我一条也说不出来。</b></p>
+      <p class="small" style="font-size:13.5px">居民公约贴在物业楼下和每栋楼的电梯旁。可问我自己写了什么，我答不上来。<br>接回教材：命令性规则要生效靠社会评价（p.145）；一份只负责张贴的公约，剩下的是「没人读的文本」。</p>
+    </div>
+    <div class="card" style="padding:16px 20px">
+      <p style="font-size:16.5px"><b>② 监督撤了，互助网留下了。</b></p>
+      <p class="small" style="font-size:13.5px">疫情期间小区出现过团购群、志愿者、消杀和卡口值班。疫情后，消杀和卡口值班消失了，团购群留到今天。<br>接回教材：外部监督撤了就撤了；还有一个「长期的重复性博弈」在运行的互助网留下来了（p.138、p.142）。</p>
+    </div>
+    <div class="card" style="padding:16px 20px">
+      <p style="font-size:16.5px"><b>③ 养狗、停车、装修的冲突，最后都是物业出面。</b></p>
+      <p class="small" style="font-size:13.5px">不是我，不是邻居，也不是楼长——是物业。<br>接回教材：熟人社区靠邻里舆论，陌生人社区靠第三方规则来执行（p.138）。</p>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="small">个人观察 ｜ 两个小区：2005–2015 年旧小区、2015 年至今新小区，均为居民楼公寓 ｜ 不构成研究证据</span>
+  </div>
+  <aside class="notes" data-time="5:50–6:50">
+    <h4>5:50–6:50 ｜ 我自己小区里的三条</h4>
+    <p>「这一章讲的都是别人，我说三件我自己小区里的事。第一件，居民公约贴在物业楼下和每栋楼的电梯旁，可我住了十年，一条也说不出来。这不是我记性差——按书里的说法，命令性规则要靠社会评价起作用，可一份只负责张贴的公约，身边没有评价它的人，它剩下的功能只有两个：一份没人读的文本，和出事以后追责的依据。第二件，疫情期间小区里有团购群、志愿者、消杀、卡口值班；疫情之后，消杀和卡口值班撤掉就没了，可团购群一直留到今天。撤掉的是外部监督，留下的是还有来回的互助网。第三件，养狗、停车、装修的冲突，最后都是物业出面，不是我，也不是邻居。熟人社区靠舆论，陌生人社区靠第三方。这三件事，正好对上书里的三页。样本就两个小区，说话的人就我一个，我不拿它证明什么趋势，只用它说明机制。」</p>
+  </aside>
+</section>
+
+<!-- ============ P9 结论 ============ -->
+<section class="slide dark">
+  <div class="kicker"><span class="num">09</span><span class="bar"></span><span>结论</span></div>
+  <div class="body" style="gap:20px">
+    <p class="big" style="font-size:46px">文明不靠自觉，靠「看得见」。</p>
+    <p class="lead" style="color:rgba(229,225,214,.9)">环境、别人、将来——这三样，书里的证据说明现代社区正在把它们逐一拆掉：居住方式变成左邻右舍都是陌生人，长期的重复性博弈减少（p.138）；传统道德治理的基础和传统的文明规范逐渐瓦解（p.141）。</p>
+    <div class="rule"></div>
+    <p class="bigger">所以出路不是多贴标语，而是把「看得见」重新造出来——<br>把环境收拾干净，把别人怎么做露出来，把将来的自己拉近。</p>
+    <p class="small" style="max-width:900px">书里说文明观是「内化了的个人价值观」（p.130）。我读完的最大收获是：内化不是天生的品质，它需要条件——而条件是可以被设计的。</p>
+  </div>
+  <div class="footer">
+    <span class="small">谢谢　｜　欢迎提问</span>
+    <span class="src">124–148</span>
+  </div>
+  <aside class="notes" data-time="6:50–7:30">
+    <h4>6:50–7:30 ｜ 收束</h4>
+    <p>「总结一句：文明不靠自觉，靠『看得见』。环境、别人、将来，这三样书里都有证据说明现代社区正在把它们拆掉——邻居变成陌生人，重复性博弈减少，传统的文明规范在瓦解。所以出路不是多贴标语，而是把看得见重新造出来：把环境收拾干净，把别人怎么做的信息露出来，把将来的自己拉近。书里说文明观是内化了的个人价值观；我读完之后觉得，内化不是天生的品质，它需要条件，而条件是可以设计的。我的汇报到这里，谢谢。」</p>
+  </aside>
+</section>
+
+<!-- ============ 附录 1 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">A1</span><span class="bar"></span><span>附录 · 文档层</span></div>
+  <h2>来源与页码对照</h2>
+  <div class="body" style="gap:12px">
+    <div class="toc"><span>P1 苹果 → p.124</span><span>P2 地图 → p.124–125、129–131</span><span>P3 中西 → p.128–129</span><span>P4 矛盾 → p.137–138、140–141</span><span>P5 环境 → p.140、144–145</span><span>P6 规则 → p.145–146</span><span>P7 将来 → p.142–144</span><span>P9 结论 → p.130、138、141、148</span></div>
+    <div class="rule" style="margin:4px 0"></div>
+    <p class="small" style="margin-bottom:2px"><b>引用串（可直接复制）</b></p>
+    <ul class="cites" style="font-size:13px;line-height:1.65">
+      <li>吕大钧（定）、吕大忠（署名）：《吕氏乡约》，宋熙宁九年十二月初五日（1076）；《宋史》卷三百四十。四条：德业相劝、过失相规、礼俗相交、患难相恤。</li>
+      <li>朱熹：《增损吕氏乡约》，《晦庵先生朱文公文集》卷七十四。</li>
+      <li>王守仁：《南赣乡约》，明正德十三年（1518）十月；《王阳明全集》（卷次随版本而异，引用须注明版本）。</li>
+      <li>《中华人民共和国城市居民委员会组织法》（2025 年 10 月 28 日修订，2026 年 1 月 1 日施行）第二条、第三十条、第三十一条。</li>
+      <li>民政部等七部门：《关于做好村规民约和居民公约工作的指导意见》（民发〔2018〕144 号）。</li>
+      <li>Wilson, J. Q., &amp; Kelling, G. L. (1982). Broken Windows. <i>The Atlantic Monthly</i>, 249(3), 29–36, 38.</li>
+      <li>Keizer, K., Lindenberg, S., &amp; Steg, L. (2008). The spreading of disorder. <i>Science</i>, 322(5908), 1681–1685.</li>
+      <li>Schultz, P. W., et al. (2007). The constructive, destructive, and reconstructive power of social norms. <i>Psychological Science</i>, 18(5), 429–434.</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="small">教材文献另见正文页内标注（韦庆旺、孙健敏 2013；毕重增 2017；张岱年、方克立 2004 等）</span><span class="src">A1</span></div>
+</section>
+
+<!-- ============ 附录 2 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">A2</span><span class="bar"></span><span>附录 · 延伸</span></div>
+  <h2>《吕氏乡约》：四条与白话</h2>
+  <div class="body" style="gap:10px">
+    <div class="grid2">
+      <div class="card">
+        <h3>原文</h3>
+        <p class="quote" style="font-size:16px;border:none;padding-left:0">凡乡之约四：<br>一曰德业相劝，二曰过失相规，<br>三曰礼俗相交，四曰患难相恤。</p>
+      </div>
+      <div class="card">
+        <h3>白话</h3>
+        <p class="small" style="font-size:14.5px">德行与事业上互相勉励；有了过失互相规劝；婚丧嫁娶、往来应酬按礼俗相处；遇到患难互相体恤帮助。</p>
+      </div>
+    </div>
+    <ul class="tight">
+      <li><b>时间与地点：</b>宋熙宁九年十二月初五日（1076），京兆府蓝田县（今陕西西安蓝田）。</li>
+      <li><b>谁写的：</b>蓝田吕氏兄弟集体制定；朱熹 1175 年识语判定正文由吕大钧（和叔）所定，文末署名的是长兄吕大忠（进伯）。引用写「吕大钧（定）、吕大忠（署名）」最稳。</li>
+      <li><b>出处提醒：</b>《宋史》卷三百四十有这四句，但它在<b>吕大防传</b>（附大忠、大钧、大临）里，主语是「吕氏」——不要写成《宋史·吕大钧传》；《古今图书集成》收的是朱熹增损本，不是吕氏原约。</li>
+      <li><b>后来：</b>朱熹《增损吕氏乡约》增入「读约之礼」；王守仁《南赣乡约》（1518）设约长、约正、约史等职，置彰善簿、纠过簿。今「规约习俗（吕氏乡约乡仪）」为国家级非遗，编号 Ⅹ-142（2021 年第五批，陕西蓝田）。</li>
+      <li><b>为什么要放这一页：</b>教材把「民间规约」写进社区文明观的来源（p.130）。乡约是这类规约最早的成文形态；居民公约与它最大的差别：由法定程序制定、须报街道或区政府备案（《城市居民委员会组织法》第三十条、第三十一条）。</li>
+    </ul>
+  </div>
+  <div class="footer"><span class="small">正文只在 P2 用一行提到它，其余材料留在这里</span><span class="src">A2</span></div>
+</section>
+
+<!-- ============ 附录 3 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">A3</span><span class="bar"></span><span>附录 · 术语</span></div>
+  <h2>术语中英对照</h2>
+  <div class="body" style="gap:10px">
+    <table>
+      <tr><th style="width:34%">中文（教材用语）</th><th style="width:30%">英文</th><th>备注</th></tr>
+      <tr><td>文明</td><td>civility</td><td>教材给出的英文，p.125</td></tr>
+      <tr><td>文化</td><td>culture</td><td>教材给出的英文，p.125</td></tr>
+      <tr><td>文明观</td><td>view of civilization</td><td>教材给出的英文，p.129</td></tr>
+      <tr><td>社区文明观</td><td>view of community civility</td><td>教材给出的英文，p.130</td></tr>
+      <tr><td>社会风气</td><td>social custom</td><td>教材给出的英文，p.141</td></tr>
+      <tr><td>自信</td><td>self-confidence</td><td>教材给出的英文，p.134</td></tr>
+      <tr><td>环保意识</td><td>environmental awareness</td><td>教材给出的英文，p.135</td></tr>
+      <tr><td>社会学习</td><td>social learning</td><td>教材给出的英文，p.147</td></tr>
+      <tr><td>描述性规则</td><td>descriptive norms（通行译法）</td><td>教材正文只有中文，p.145；英文为通用译名，非教材表述</td></tr>
+      <tr><td>命令性规则</td><td>injunctive norms（通行译法）</td><td>同上</td></tr>
+      <tr><td>破窗理论</td><td>broken windows theory（通行译法）</td><td>教材正文只有中文，p.145</td></tr>
+      <tr><td>观点采择</td><td>perspective taking（通行译法）</td><td>教材正文只有中文，p.143</td></tr>
+    </table>
+  </div>
+  <div class="footer"><span class="small">标准：教材给过英文的照抄；教材没给英文的，标「通行译法」，不当成教材表述</span><span class="src">A3</span></div>
+</section>
+
+<!-- ============ 附录 4 ============ -->
+<section class="slide">
+  <div class="kicker"><span class="num">A4</span><span class="bar"></span><span>附录 · 说明</span></div>
+  <h2>方法与限制 · 资料来源说明</h2>
+  <div class="body" style="gap:14px">
+    <div class="card">
+      <h3>这份汇报的依据</h3>
+      <p class="small" style="font-size:14.5px">正文所有带页码的主张，均出自教材第六章原文（原书 124–148 页）。页码为原书页码，对应本次核对所用的扫描件。</p>
+    </div>
+    <div class="card">
+      <h3>与手边一份整理资料的差异（重要）</h3>
+      <p class="small" style="font-size:14.5px">另有一份流传较广的第六章整理稿，讲的是「五德、四维（公共意识／规则意识／公德行为／社区认同）、居民公约、垃圾分类、文明养犬」。核对原书后发现框架不同：原书这一章的骨架是「文明观概述 → 社区文明观的特性与研究主题 → 文明社区建设」。全章检索：「居民公约」0 次、「社会主义核心价值观」0 次、「垃圾分类」1 次、「社区公约」1 次、「五德」0 次。本汇报一律以教材原文为准，整理稿只作参考，不进正文。</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>方法</h3>
+        <p class="small" style="font-size:13.5px">每条主张都先落到教材的具体页码，再考虑是否外延；外延材料（乡约、法条、英文文献）一律放附录，正文只在第 2 页留一行。</p>
+      </div>
+      <div class="card">
+        <h3>限制</h3>
+        <p class="small" style="font-size:13.5px">一手材料是个人观察（两个小区、一名汇报人），只用于说明机制，不用于证明「文明在退步」；中西比较与历史材料取自教材与公开文献，未经独立考证的部分已在上文标注；三个小节标题已按扫描件核出（第一节 文明观概述／第二节 社区文明观的特性与研究主题／第三节 文明社区建设），页码与措辞仍待教材实物抽验。</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="small">资料包与全部来源链接另见工作区文件《资料包-第06章汇报.md》</span><span class="src">A4</span></div>
+</section>
+
+</div></div>
+
+<div id="ui"><div id="bar"></div></div>
+<div id="pager"></div>
+<div id="hint">← → 翻页 ｜ N 讲稿 ｜ A 动效 ｜ F 全屏 ｜ P 导出 PDF</div>
+<div id="notes"></div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var notes=document.getElementById('notes');
+  var bar=document.getElementById('bar');
+  var pager=document.getElementById('pager');
+  var i=0, notesOn=false;
+
+  function fit(){
+    var s=Math.min(window.innerWidth/1280, window.innerHeight/720);
+    stage.style.transform='scale('+s+')';
+  }
+  var SEL=':scope > *:not(.notes):not(.cover-bg):not(.cover-veil), .body > *, .grid2 > *, .grid3 > *, .row > *, .footer > *';
+  function tag(slide){
+    var cand=[].slice.call(slide.querySelectorAll(SEL));
+    cand=cand.filter(function(el){return !cand.some(function(o){return o!==el&&o.contains(el);});});
+    cand.forEach(function(el,k){el.classList.add('anim');el.style.setProperty('--i',Math.min(k,8));});
+  }
+  function render(){
+    slides.forEach(function(s,k){
+      s.classList.remove('ready');
+      s.classList.toggle('on',k===i);
+      [].slice.call(s.querySelectorAll('.anim')).forEach(function(e){e.classList.remove('anim');e.style.removeProperty('--i');});
+    });
+    var cur=slides[i];
+    tag(cur); cur.classList.add('on');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){cur.classList.add('ready');});});
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    pager.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    var n=slides[i].querySelector('.notes');
+    if(n){notes.innerHTML='<h4>'+(n.getAttribute('data-time')||'讲稿备注')+'</h4>'+n.innerHTML.replace(/<h4>[\s\S]*?<\/h4>/,'');}
+    else{notes.innerHTML='<h4>讲稿备注</h4><p>这一页没有备注。</p>';}
+  }
+  function go(d){ var k=i+d; if(k<0)k=0; if(k>slides.length-1)k=slides.length-1; if(k!==i){i=k;render();} }
+  document.addEventListener('keydown',function(e){
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();go(1);}
+    else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();go(-1);}
+    else if(k==='Home'){i=0;render();}
+    else if(k==='End'){i=slides.length-1;render();}
+    else if(k==='n'||k==='N'){notesOn=!notesOn;notes.classList.toggle('on',notesOn);}
+    else if(k==='a'||k==='A'){document.body.classList.toggle('noanim');}
+    else if(k==='f'||k==='F'){ if(document.fullscreenElement){document.exitFullscreen();}else{document.documentElement.requestFullscreen();} }
+    else if(k==='p'||k==='P'){ window.print(); }
+  });
+  var x0=null;
+  document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;});
+  document.addEventListener('touchend',function(e){ if(x0===null)return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50){go(dx<0?1:-1);} x0=null;});
+  document.addEventListener('click',function(e){ if(e.target.closest('#notes'))return; go(e.clientX>window.innerWidth*0.5?1:-1); });
+  window.addEventListener('resize',fit);
+  window.addEventListener('beforeprint',function(){slides.forEach(function(s){s.classList.add('on');});});
+  fit();render();
+})();
+</script>
+</body>
+</html>

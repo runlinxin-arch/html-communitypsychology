@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* 字体：与幻灯片一致——正文黑体、标题宋体 */
+@theme {
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Source Han Sans SC",
+    "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  --font-serif: "Songti SC", "STSong", "Source Han Serif SC", "Noto Serif CJK SC", "SimSun", serif;
+}
+
+/*
+ * 配色桥接：把汇报幻灯片的靛蓝／米白映射到 HeroUI 的语义 token。
+ * HeroUI 的主题变量写在 @layer base 里，这里不加 layer，按层叠规则稳定覆盖。
+ */
+:root,
+.light,
+[data-theme="light"] {
+  --radius: 0.75rem;
+
+  --background: #f1eee5;
+  --foreground: #191036;
+  --background-secondary: #e5e1d6;
+  --background-tertiary: #dcd6c4;
+
+  --surface: #ffffff;
+  --surface-foreground: #191036;
+  --surface-hover: #f6f4ee;
+  --surface-secondary: #e5e1d6;
+  --surface-secondary-foreground: #191036;
+  --surface-tertiary: #dcd6c4;
+  --surface-tertiary-foreground: #191036;
+
+  --overlay: #ffffff;
+  --overlay-foreground: #191036;
+
+  --muted: #6e6880;
+
+  --default: #e5e1d6;
+  --default-foreground: #191036;
+  --default-hover: #dcd6c4;
+  --default-soft: #eae6da;
+  --default-soft-foreground: #191036;
+
+  --accent: #5b14e8;
+  --accent-foreground: #ffffff;
+  --accent-hover: #4a10c4;
+  --accent-soft: #ece5ff;
+  --accent-soft-foreground: #3a0a9e;
+  --accent-soft-hover: #e0d5ff;
+
+  --border: rgba(25, 16, 54, 0.14);
+  --separator: rgba(25, 16, 54, 0.1);
+  --link: #4a16c9;
+  --focus: #5b14e8;
+
+  --surface-shadow: 0 1px 2px rgba(25, 16, 54, 0.06), 0 8px 24px rgba(25, 16, 54, 0.05);
+}
+
+.dark,
+[data-theme="dark"] {
+  --background: #14022f;
+  --foreground: #e9e5da;
+  --background-secondary: #1c0440;
+  --background-tertiary: #260950;
+
+  --surface: #1e0748;
+  --surface-foreground: #e9e5da;
+  --surface-hover: #260950;
+  --surface-secondary: #260950;
+  --surface-secondary-foreground: #e9e5da;
+  --surface-tertiary: #2e0e5e;
+  --surface-tertiary-foreground: #e9e5da;
+
+  --overlay: #260950;
+  --overlay-foreground: #e9e5da;
+
+  --muted: #a79fc0;
+
+  --default: #2e0e5e;
+  --default-foreground: #e9e5da;
+  --default-hover: #3a1470;
+  --default-soft: #260950;
+  --default-soft-foreground: #e9e5da;
+
+  --accent: #9b6bff;
+  --accent-foreground: #14022f;
+  --accent-hover: #ae86ff;
+  --accent-soft: #2e0e5e;
+  --accent-soft-foreground: #d9c7ff;
+  --accent-soft-hover: #3a1470;
+
+  --border: rgba(233, 229, 218, 0.16);
+  --separator: rgba(233, 229, 218, 0.12);
+  --link: #c9b4ff;
+  --focus: #9b6bff;
+
+  --surface-shadow: 0 0 0 1px rgba(233, 229, 218, 0.06) inset;
+  --overlay-shadow: 0 0 0 1px rgba(233, 229, 218, 0.08) inset;
+}
+
+/* 幻灯片上的 64px 网格底纹，沿用过来 */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 7%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 正文里的页码标记，钉在句子末尾 */
+.pageref {
+  font-family: var(--font-serif);
+  font-size: 0.78em;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/*
+ * 打印／导出 PDF：强制浅色（省墨且可读），链接补出网址，
+ * 折叠与切换过的内容由 .print-only 分支补齐（见各组件）。
+ */
+@media print {
+  @page {
+    margin: 14mm 12mm;
+  }
+
+  :root,
+  .light,
+  [data-theme="light"],
+  .dark,
+  [data-theme="dark"] {
+    --background: #ffffff;
+    --foreground: #16121f;
+    --background-secondary: #ffffff;
+    --background-tertiary: #ffffff;
+    --surface: #ffffff;
+    --surface-foreground: #16121f;
+    --surface-secondary: #f4f2ec;
+    --surface-secondary-foreground: #16121f;
+    --surface-tertiary: #f4f2ec;
+    --surface-tertiary-foreground: #16121f;
+    --overlay: #ffffff;
+    --overlay-foreground: #16121f;
+    --muted: #4a4458;
+    --default: #f1efe8;
+    --default-foreground: #16121f;
+    --default-soft: #f4f2ec;
+    --default-soft-foreground: #16121f;
+    --accent: #4a10c4;
+    --accent-foreground: #ffffff;
+    --accent-soft: #efe9ff;
+    --accent-soft-foreground: #330a8a;
+    --border: rgba(22, 18, 31, 0.24);
+    --separator: rgba(22, 18, 31, 0.16);
+    --link: #3a0a9e;
+    --focus: #4a10c4;
+    --surface-shadow: none;
+    --overlay-shadow: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* 链接文字本身就是网址的（.link-is-url），不再重复附出，避免打印时同一串网址出现两次 */
+  a[href^="http"]:not(.link-is-url)::after {
+    content: " ⟨" attr(href) "⟩";
+    font-size: 0.72em;
+    color: #55506a;
+    word-break: break-all;
+  }
+
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  .avoid-break {
+    break-inside: avoid;
+  }
+
+  section {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+}
