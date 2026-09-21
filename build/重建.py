@@ -17,12 +17,20 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import datetime
+import hashlib
+import json
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "build" / "deck-src-未内嵌图片.html"
 OUT = ROOT / "社区文明观-阅读汇报.html"
 PDF = ROOT / "社区文明观-阅读汇报.pdf"
+FINGERPRINT = ROOT / "build" / "成品指纹.json"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+
+def sha256(path: pathlib.Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 MEASURE_JS = """
 <script>
@@ -103,6 +111,15 @@ def main() -> int:
     size = re.search(r"^Page size:\s+(.+)$", info, re.M)
     print(f"PDF 已重导：{pages.group(1) if pages else '?'} 页，"
           f"{size.group(1).strip() if size else '?'}")
+
+    # 记下这次导出时的内容指纹：检查脚本据此判断成品与 PDF 是否还是同一版本
+    # （用内容而不是时间戳，git checkout 复原文件后不会误报）
+    FINGERPRINT.write_text(json.dumps({
+        "html_sha256": sha256(OUT),
+        "pdf_sha256": sha256(PDF),
+        "exported_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"指纹已记录：build/成品指纹.json")
     print("注意：本次改动若涉及页码或引文，请先用 pdftotext 核对 PDF 文字再交付。")
     return 0
 

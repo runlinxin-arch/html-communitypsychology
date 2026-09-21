@@ -1,0 +1,10 @@
+#!/bin/sh
+# 提交前跑「交付物一致性检查」：只提醒，不阻断提交（检查脚本默认退出码 0）。
+# 作用：源改了但成品/PDF 没重建、根目录副本过期、口径没同步——这些静默过期在提交时就被看见。
+#
+# 本仓库已启用：git config core.hooksPath build/hooks
+# 换机器/重新克隆后启用的命令同上（提交一次后即可看到检查输出）。
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$root/build/检查.py" ] || exit 0
+python3 "$root/build/检查.py"
+exit 0

@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+"""交付物一致性检查：防止「源改了、成品没重建」这类静默过期。
+
+用法（工作区根目录）：
+    python3 build/检查.py            # 只提醒，退出码 0
+    python3 build/检查.py --strict   # 有问题就退出码 1
+
+检查四类：
+  1) 时间戳链：源 → 成品 → PDF / dist → 根目录交付副本
+  2) 内容指纹：根目录副本与 dist 的 sha256 是否一致（比时间戳硬）
+  3) 结构完整性：占位符残留、内嵌图数量、页数/备注数
+  4) 口径一致性：附录页码是否都在 deck 里、禁用词表是否还有残留
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import pathlib
+import re
+import subprocess
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+DECK_SRC = ROOT / "build" / "deck-src-未内嵌图片.html"
+DECK_HTML = ROOT / "社区文明观-阅读汇报.html"
+DECK_PDF = ROOT / "社区文明观-阅读汇报.pdf"
+FINGERPRINT = ROOT / "build" / "成品指纹.json"
+APP = ROOT / "互动附录-社区文明观"
+APP_DIST = APP / "dist" / "index.html"
+APP_ROOT_COPY = ROOT / "社区文明观-互动附录.html"
+SCRIPT = ROOT / "讲稿-社区文明观-阅读汇报.md"
+
+# 编辑后立刻构建是常态，留一点容差，避免秒级顺序造成误报
+TOLERANCE = 5.0
+
+# 已经纠正过的旧口径：一旦再出现，说明某处没同步
+BANNED = [
+    ("样本只有一个小区", "样本口径 →「两个小区、一名汇报人」"),
+    ("看不见未来", "三扇看不见 → 第三扇写作「看不见将来」"),
+]
+
+problems: list[str] = []
+notes: list[str] = []
+
+
+def mtime(p: pathlib.Path) -> float | None:
+    return p.stat().st_mtime if p.exists() else None
+
+
+def sha(p: pathlib.Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def newest(paths) -> tuple[float, pathlib.Path] | None:
+    hit = [(mtime(p), p) for p in paths if p.is_file() and mtime(p) is not None]
+    return max(hit) if hit else None
+
+
+def check(files: list[pathlib.Path]) -> None:
+    for p in files:
+        if not p.exists():
+            problems.append(f"文件缺失：{p.relative_to(ROOT)}")
+
+
+def main() -> int:
+    check([DECK_SRC, DECK_HTML, DECK_PDF, APP_DIST, APP_ROOT_COPY, SCRIPT])
+
+    # 1) 时间戳链：deck 源 → 成品 → PDF
+    if DECK_SRC.exists() and DECK_HTML.exists():
+        if mtime(DECK_SRC) > mtime(DECK_HTML) + TOLERANCE:
+            problems.append("deck 源文件比成品 HTML 新 → 跑 python3 build/重建.py")
+    # 成品 HTML ↔ PDF 用内容指纹比对，不用时间戳（git checkout 复原文件不会误报）
+    if FINGERPRINT.exists():
+        fp = json.loads(FINGERPRINT.read_text(encoding="utf-8"))
+        if DECK_HTML.exists() and sha(DECK_HTML) != fp.get("html_sha256"):
+            problems.append("deck 成品 HTML 与上次导出 PDF 时不是同一版本 → 跑 python3 build/重建.py")
+        if DECK_PDF.exists() and sha(DECK_PDF) != fp.get("pdf_sha256"):
+            problems.append("deck PDF 与记录不符（被替换或未重导）→ 跑 python3 build/重建.py")
+        notes.append(f"指纹：上次导出 PDF 于 {fp.get('exported_at', '?')}")
+    else:
+        problems.append("缺少 build/成品指纹.json → 跑 python3 build/重建.py 生成")
+
+    # 1') 时间戳链：附录 源 → dist，dist → 根目录副本
+    if APP_DIST.exists():
+        src_latest = newest([*APP.glob("src/**/*"), APP / "package.json",
+                             APP / "vite.config.ts", APP / "index.html"])
+        if src_latest and src_latest[0] > mtime(APP_DIST) + TOLERANCE:
+            rel = src_latest[1].relative_to(ROOT)
+            problems.append(f"附录源文件比构建产物新（{rel}）→ 跑 cd 互动附录-社区文明观 && npm run build")
+        if APP_ROOT_COPY.exists() and sha(APP_DIST) != sha(APP_ROOT_COPY):
+            problems.append("根目录交付副本与 dist 内容不一致 → 跑 node 互动附录-社区文明观/scripts/同步交付物.mjs")
+
+    # 3) 结构完整性
+    if DECK_HTML.exists():
+        html = DECK_HTML.read_text(encoding="utf-8")
+        for token in ("__COVER__", "__CANA__"):
+            if token in html:
+                problems.append(f"deck 成品里残留占位符 {token}")
+        n_img = html.count("data:image")
+        if n_img != 2:
+            problems.append(f"deck 成品内嵌图 {n_img} 张（应为 2）")
+        n_slide = len(re.findall(r'<section class="slide', html))
+        n_notes = len(re.findall(r'<aside class="notes"', html))
+        if n_slide != 14:
+            problems.append(f"deck 幻灯片 {n_slide} 页（应为 14）")
+        if n_notes != 10:
+            problems.append(f"deck 备注 {n_notes} 条（应为 10）")
+        notes.append(f"deck：{n_slide} 页 / {n_notes} 条备注 / {n_img} 张内嵌图")
+    if DECK_PDF.exists():
+        try:
+            info = subprocess.run(["pdfinfo", str(DECK_PDF)], capture_output=True, text=True).stdout
+            pages = re.search(r"^Pages:\s+(\d+)", info, re.M)
+            size = re.search(r"^Page size:\s+([\d.]+) x ([\d.]+)", info, re.M)
+            if pages and pages.group(1) != "14":
+                problems.append(f"deck PDF {pages.group(1)} 页（应为 14）")
+            if size and (round(float(size.group(1))) != 960 or round(float(size.group(2))) != 540):
+                problems.append(f"deck PDF 页面尺寸 {size.group(1)}×{size.group(2)}pt（应为 960×540）")
+            if pages:
+                notes.append(f"PDF：{pages.group(1)} 页 {size.group(1)}×{size.group(2)}pt"
+                             if size else f"PDF：{pages.group(1)} 页")
+        except FileNotFoundError:
+            notes.append("PDF：跳过（没有 pdfinfo）")
+
+    # 4) 口径一致性
+    appendix_refs: set[str] = set()
+    for f in APP.glob("src/**/*.ts*"):
+        appendix_refs |= set(re.findall(r"p\.\s?\d+(?:\s?[–-]\s?\d+)?", f.read_text(encoding="utf-8")))
+    if appendix_refs and DECK_HTML.exists():
+        deck_refs = set(re.findall(r"p\.\s?\d+(?:\s?[–-]\s?\d+)?", DECK_HTML.read_text(encoding="utf-8")))
+        orphan = {r.replace(" ", "") for r in appendix_refs} - {r.replace(" ", "") for r in deck_refs}
+        if orphan:
+            problems.append(f"附录引了 deck 没有的页码：{sorted(orphan)}")
+        notes.append(f"页码：附录 {len(appendix_refs)} 个引用，全部能在 deck 找到"
+                     if not orphan else "页码：存在孤儿引用")
+
+    targets = {"deck 成品": DECK_HTML, "讲稿": SCRIPT, "附录": APP.joinpath("src", "data.ts")}
+    for words, why in BANNED:
+        for name, p in targets.items():
+            if p.exists() and words in p.read_text(encoding="utf-8"):
+                problems.append(f"{name} 里还有旧口径「{words}」（{why}）")
+
+    # 输出
+    print("交付物一致性检查")
+    for n in notes:
+        print(f"  · {n}")
+    if problems:
+        print(f"\n发现 {len(problems)} 个问题：")
+        for p in problems:
+            print(f"  ⚠ {p}")
+        return 0 if "--strict" not in sys.argv else 1
+    print("\n  ✅ 全部一致（源→成品→PDF、附录→dist→根目录副本、页码与口径）")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
