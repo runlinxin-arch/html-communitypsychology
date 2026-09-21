@@ -6,7 +6,7 @@
 <title>文明不是道德问题，是信息问题｜第六章《社区的文明观》阅读汇报</title>
 <style>
 :root{
-  --anim-in:200ms; --anim-out:140ms; --stagger:70ms;
+  --anim-in:200ms; --anim-out:140ms; --stagger:70ms; --anim-wipe:430ms;
   --indigo:#1C004F; --indigo-soft:#2A0B6B; --bone:#E5E1D6; --bone-soft:#F1EEE5;
   --ink:#191036; --muted:#6E6880; --accent:#7126FF;
   --line-l:rgba(25,16,54,.10); --line-d:rgba(229,225,214,.12);
@@ -21,10 +21,13 @@ body{background:#0E0029;color:var(--ink);font-family:var(--sans);overflow:hidden
 #stage{width:1280px;height:720px;transform-origin:center center;position:relative}
 .slide{position:absolute;inset:0;width:1280px;height:720px;padding:64px 72px;display:flex;flex-direction:column;
   background:var(--bone);color:var(--ink);overflow:hidden;
-  opacity:0;visibility:hidden;pointer-events:none;
+  opacity:0;visibility:hidden;pointer-events:none}
+/* 新页瞬间铺满（不淡入），旧页压在它上面淡出：
+   两层若同时在半透明状态，中间会闪出深色底 #0E0029（实测亮度掉 30%）。
+   旧页 z-index 更高 + 不透明的新页在底下 → 真正的交叉溶解，无暗闪。 */
+.slide.on{opacity:1;visibility:visible;pointer-events:auto;z-index:2}
+.slide.out{opacity:0;visibility:hidden;z-index:3;
   transition:opacity var(--anim-out) ease, visibility 0s linear var(--anim-out)}
-.slide.on{opacity:1;visibility:visible;pointer-events:auto;z-index:2;
-  transition:opacity var(--anim-in) ease, visibility 0s linear 0s}
 .slide.dark{background:var(--indigo);color:var(--bone)}
 .slide::after{content:"";position:absolute;inset:0;pointer-events:none;
   background-image:linear-gradient(to right,var(--line-l) 1px,transparent 1px),linear-gradient(to bottom,var(--line-l) 1px,transparent 1px);
@@ -32,12 +35,15 @@ body{background:#0E0029;color:var(--ink);font-family:var(--sans);overflow:hidden
 .slide.dark::after{background-image:linear-gradient(to right,var(--line-d) 1px,transparent 1px),linear-gradient(to bottom,var(--line-d) 1px,transparent 1px);opacity:.6}
 .slide>*{position:relative;z-index:2}
 .slide .notes{display:none}
-.anim{opacity:0;transform:translateY(10px);transition:opacity var(--anim-in) ease,transform var(--anim-in) ease;
-  transition-delay:calc(var(--i,0) * var(--stagger))}
-.slide.ready .anim{opacity:1;transform:none}
-body.noanim .anim{opacity:1!important;transform:none!important;transition:none!important}
+/* 入场由页面底部脚本用 Web Animations API 在每次翻页时重播：
+   板块淡入上浮，块内文字用 clip-path 由左向右擦出。
+   注意：不要用「加类/去类」驱动，否则回看已访问过的页时类没有真正变化，动画会丢。 */
+body.noanim .anim{opacity:1!important;transform:none!important;transition:none!important;animation:none!important}
+body.noanim .anim-text{clip-path:none!important;transition:none!important;animation:none!important}
 body.noanim .slide{transition:none!important}
-@media (prefers-reduced-motion: reduce){.anim{opacity:1!important;transform:none!important;transition:none!important}}
+@media (prefers-reduced-motion: reduce){.anim{opacity:1!important;transform:none!important;animation:none!important}
+  .anim-text{clip-path:none!important;animation:none!important}
+  .slide,.slide.out{transition:none!important}}
 .kicker{font-size:13px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:14px}
 .slide.dark .kicker{color:rgba(229,225,214,.66)}
 .kicker .num{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
@@ -114,6 +120,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   #stage{transform:none!important;width:auto;height:auto;position:static}
   .slide{position:relative;inset:auto;display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;transition:none!important;break-after:page;page-break-after:always}
   .anim{opacity:1!important;transform:none!important;transition:none!important}
+  .anim-text{clip-path:none!important;transition:none!important}
   .slide:last-child{break-after:auto}
   #ui,#pager,#hint,#notes{display:none!important}
 }
@@ -496,27 +503,61 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   var notes=document.getElementById('notes');
   var bar=document.getElementById('bar');
   var pager=document.getElementById('pager');
-  var i=0, notesOn=false;
+  var i=0, prev=-1, notesOn=false;
 
   function fit(){
     var s=Math.min(window.innerWidth/1280, window.innerHeight/720);
     stage.style.transform='scale('+s+')';
   }
   var SEL=':scope > *:not(.notes):not(.cover-bg):not(.cover-veil), .body > *, .grid2 > *, .grid3 > *, .row > *, .footer > *';
-  function tag(slide){
+  // .toc>span / .credit / .placard 里的字、页脚页码 .footer .src 原本没有擦出，一并补上
+  var TEXT='p,li,h1,h2,h3,h4,figcaption,td,th,.kicker,.small,.big,.bigger,.quote,.lead,.toc>span,.credit,.placard .t,.placard .cap,.footer .src';
+  var cssv=getComputedStyle(document.documentElement);
+  var STAGGER=parseFloat(cssv.getPropertyValue('--stagger'))||70;   // 板块之间的间隔
+  var DUR_BLOCK=parseFloat(cssv.getPropertyValue('--anim-in'))||200;
+  var DUR_WIPE=parseFloat(cssv.getPropertyValue('--anim-wipe'))||430;
+  var MAXSTEP=12;
+
+  // 把一页拆成「板块」：取叶子块，容器让位给里面的板块，这样板块才自上而下逐个出场
+  function units(slide){
     var cand=[].slice.call(slide.querySelectorAll(SEL));
-    cand=cand.filter(function(el){return !cand.some(function(o){return o!==el&&o.contains(el);});});
-    cand.forEach(function(el,k){el.classList.add('anim');el.style.setProperty('--i',Math.min(k,8));});
+    cand=cand.filter(function(el){return !cand.some(function(o){return o!==el&&el.contains(o);});});
+    return cand.map(function(el,k){
+      var texts=[]; if(el.matches(TEXT)){texts.push(el);}
+      texts=texts.concat([].slice.call(el.querySelectorAll(TEXT)));
+      return {el:el,idx:Math.min(k,MAXSTEP),texts:texts};
+    });
+  }
+  function animOff(){return document.body.classList.contains('noanim')||
+    (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
+  function clearAnim(el){el.getAnimations().forEach(function(a){a.cancel();});el.style.opacity='';el.style.transform='';el.style.clipPath='';}
+  // 每次翻页重新播放：不依赖类变化，所以回看同一页照样有动效
+  function play(slide){
+    var off=animOff();
+    units(slide).forEach(function(u){
+      u.el.classList.add('anim');
+      u.texts.forEach(function(t){t.classList.add('anim-text');});
+      // 先清场再统一挂动画：文本元素同时也是板块时（标题、大字、页脚），
+      // 若边挂边清，后一步会把刚建好的淡入动画取消掉，那一块就会「瞬间出现」。
+      clearAnim(u.el);
+      u.texts.forEach(clearAnim);
+      if(off){return;}
+      var d=u.idx*STAGGER;
+      u.el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],
+        {duration:DUR_BLOCK,delay:d,easing:'ease',fill:'both'});
+      u.texts.forEach(function(t){
+        t.animate([{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 -1px 0 0)'}],
+          {duration:DUR_WIPE,delay:d,easing:'cubic-bezier(.25,.6,.3,1)',fill:'both'});
+      });
+    });
   }
   function render(){
     slides.forEach(function(s,k){
-      s.classList.remove('ready');
       s.classList.toggle('on',k===i);
-      [].slice.call(s.querySelectorAll('.anim')).forEach(function(e){e.classList.remove('anim');e.style.removeProperty('--i');});
+      s.classList.toggle('out',k===prev&&k!==i);  // 上一页留在上层淡出，新页在下面已经铺满
     });
-    var cur=slides[i];
-    tag(cur); cur.classList.add('on');
-    requestAnimationFrame(function(){requestAnimationFrame(function(){cur.classList.add('ready');});});
+    prev=i;
+    play(slides[i]);
     bar.style.width=((i+1)/slides.length*100)+'%';
     pager.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
     var n=slides[i].querySelector('.notes');
@@ -531,7 +572,10 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
     else if(k==='Home'){i=0;render();}
     else if(k==='End'){i=slides.length-1;render();}
     else if(k==='n'||k==='N'){notesOn=!notesOn;notes.classList.toggle('on',notesOn);}
-    else if(k==='a'||k==='A'){document.body.classList.toggle('noanim');}
+    else if(k==='a'||k==='A'){document.body.classList.toggle('noanim');
+      if(document.body.classList.contains('noanim')){
+        [].slice.call(document.querySelectorAll('.anim,.anim-text')).forEach(clearAnim);
+      }}
     else if(k==='f'||k==='F'){ if(document.fullscreenElement){document.exitFullscreen();}else{document.documentElement.requestFullscreen();} }
     else if(k==='p'||k==='P'){ window.print(); }
   });
@@ -540,7 +584,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   document.addEventListener('touchend',function(e){ if(x0===null)return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50){go(dx<0?1:-1);} x0=null;});
   document.addEventListener('click',function(e){ if(e.target.closest('#notes'))return; go(e.clientX>window.innerWidth*0.5?1:-1); });
   window.addEventListener('resize',fit);
-  window.addEventListener('beforeprint',function(){slides.forEach(function(s){s.classList.add('on');});});
+  window.addEventListener('beforeprint',function(){slides.forEach(function(s){s.classList.remove('out');s.classList.add('on');});});
   fit();render();
 })();
 </script>

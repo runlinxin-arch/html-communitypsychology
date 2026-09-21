@@ -5,11 +5,12 @@
     python3 build/检查.py            # 只提醒，退出码 0
     python3 build/检查.py --strict   # 有问题就退出码 1
 
-检查四类：
+检查五类：
   1) 时间戳链：源 → 成品 → PDF / dist → 根目录交付副本
   2) 内容指纹：根目录副本与 dist 的 sha256 是否一致（比时间戳硬）
   3) 结构完整性：占位符残留、内嵌图数量、页数/备注数
   4) 口径一致性：附录页码是否都在 deck 里、禁用词表是否还有残留
+  5) 动效不变量：翻页动效必须每次重播、新页不能半透明、打印与减弱动效要有兜底
 """
 from __future__ import annotations
 
@@ -37,6 +38,26 @@ TOLERANCE = 5.0
 BANNED = [
     ("样本只有一个小区", "样本口径 →「两个小区、一名汇报人」"),
     ("看不见未来", "三扇看不见 → 第三扇写作「看不见将来」"),
+]
+
+# 动效这块踩过的坑都是「看着没事、实际有事」，写成静态断言钉住
+ANIM_RULES = [
+    # （正则, 期望命中?, 说明）
+    (r"\.animate\(\[", True,
+     "翻页动效必须用 Web Animations API 每次重播；退回「加类/去类」驱动的话，回看已访问过的页时类没变化，动画会静默丢失"),
+    (r"\.slide\.ready\s+\.anim", False,
+     "出现了旧的类驱动写法 .slide.ready .anim → 回看旧页会没有动效"),
+    (r"\.slide\.on\{[^}]*transition", False,
+     "新页 .slide.on 不能带 transition：新旧两页同时半透明时，中间会闪出深色底（实测亮度掉 30%）"),
+    (r"\.slide\.out\{[^}]*transition:opacity", True,
+     "淡出必须由「上一页压在新页上层淡出」实现（.slide.out），否则没有交叉溶解"),
+    (r"--anim-wipe:", True, "缺少 --anim-wipe 变量：文字擦出的时长"),
+]
+
+# 这两条兜底一旦缺失，打印出来的 PDF 会大片缺字/空白
+FALLBACK_RULES = [
+    (r"@media print\{[\s\S]*?\.anim-text\{clip-path:none", "打印时没有 .anim-text{clip-path:none} → PDF 会缺字"),
+    (r"prefers-reduced-motion: reduce\)\{[\s\S]*?\.anim-text\{clip-path:none", "减弱动效时没有强制终态 → 开了系统「减弱动态效果」的人会看不到内容"),
 ]
 
 problems: list[str] = []
@@ -122,6 +143,18 @@ def main() -> int:
             notes.append("PDF：跳过（没有 pdfinfo）")
 
     # 4) 口径一致性
+    if DECK_SRC.exists():
+        src = DECK_SRC.read_text(encoding="utf-8")
+        for pat, want, why in ANIM_RULES:
+            hit = re.search(pat, src) is not None
+            if hit != want:
+                problems.append(f"deck 动效：{why}")
+        for pat, why in FALLBACK_RULES:
+            if re.search(pat, src) is None:
+                problems.append(f"deck 动效兜底：{why}")
+        if not problems:
+            notes.append(f"动效：{len(ANIM_RULES) + len(FALLBACK_RULES)} 条不变量通过")
+
     appendix_refs: set[str] = set()
     for f in APP.glob("src/**/*.ts*"):
         appendix_refs |= set(re.findall(r"p\.\s?\d+(?:\s?[–-]\s?\d+)?", f.read_text(encoding="utf-8")))
