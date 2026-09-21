@@ -8,7 +8,7 @@ export function MethodLimits() {
     <Section
       id="method"
       kicker="附录 · 自证"
-      num="07"
+      num="05"
       title="方法与限制"
       lead="一份阅读汇报该交代的两件事：话是从哪来的，以及哪些话还不能说满。"
     >

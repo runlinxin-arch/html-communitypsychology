@@ -1,7 +1,7 @@
 /**
  * 互动附录的全部内容。
  * 口径与《社区文明观-阅读汇报.html》《讲稿-社区文明观-阅读汇报.md》《资料包-第06章汇报.md》一致：
- * 教材主张只写教材原意并附页码；外延材料标注核证状态；个人观察明确声明样本限制。
+ * 教材主张只写教材原意并附页码；个人观察明确声明样本限制。
  */
 
 import canalettoUrl from "./assets/canaletto-san-marco.jpg";
@@ -196,138 +196,6 @@ export const pathways: Pathway[] = [
     ],
     pull: "把将来的自己拉近到现在：人只有看得见将来，才会替将来买单。",
   },
-];
-
-export type Term = { zh: string; en: string; note: string };
-
-export const terms: Term[] = [
-  { zh: "文明", en: "civility", note: "教材给出的英文，p.125" },
-  { zh: "文化", en: "culture", note: "教材给出的英文，p.125" },
-  { zh: "文明观", en: "view of civilization", note: "教材给出的英文，p.129" },
-  { zh: "社区文明观", en: "view of community civility", note: "教材给出的英文，p.130" },
-  { zh: "社会风气", en: "social custom", note: "教材给出的英文，p.141" },
-  { zh: "自信", en: "self-confidence", note: "教材给出的英文，p.134" },
-  { zh: "环保意识", en: "environmental awareness", note: "教材给出的英文，p.135" },
-  { zh: "社会学习", en: "social learning", note: "教材给出的英文，p.147" },
-  {
-    zh: "描述性规则",
-    en: "descriptive norms（通行译法）",
-    note: "教材正文只有中文，p.145；英文为通用译名，非教材表述",
-  },
-  {
-    zh: "命令性规则",
-    en: "injunctive norms（通行译法）",
-    note: "教材正文只有中文，p.145；英文为通用译名，非教材表述",
-  },
-  {
-    zh: "破窗理论",
-    en: "broken windows theory（通行译法）",
-    note: "教材正文只有中文，p.145；英文为通用译名，非教材表述",
-  },
-  {
-    zh: "观点采择",
-    en: "perspective taking（通行译法）",
-    note: "教材正文只有中文，p.143；英文为通用译名，非教材表述",
-  },
-];
-
-export type SourceKind = "古籍" | "法条与政策" | "官方名录" | "期刊";
-
-export type SourceItem = {
-  n: number;
-  title: string;
-  kind: SourceKind;
-  status: string;
-  note?: string;
-  link?: string;
-};
-
-export const sourceKinds: SourceKind[] = ["古籍", "法条与政策", "官方名录", "期刊"];
-
-export const sources: SourceItem[] = [
-  {
-    n: 1,
-    title:
-      "吕大钧（定稿）、吕大忠（署名）：《吕氏乡约》，宋熙宁九年十二月初五日（1076），京兆府蓝田县。四条＝德业相劝、过失相规、礼俗相交、患难相恤",
-    kind: "古籍",
-    status: "已核（与《宋史》卷 340 原文比对）",
-    note: "引用写《宋史》卷 340；维基类页面只作线索，不作引用",
-    link: "https://zh.wikisource.org/wiki/宋史_(四庫全書本)/卷340",
-  },
-  {
-    n: 2,
-    title: "《永乐大典》本《乡约》（含《吕氏乡约》全文与朱熹 1175 年识语）",
-    kind: "古籍",
-    status: "二手转述，链接可查",
-    link: "https://www.shidianguji.com/book/YLDD00001/chapter/1lmfjq3458xdy",
-  },
-  {
-    n: 3,
-    title: "朱熹《增损吕氏乡约》，《晦庵先生朱文公文集》卷七十四",
-    kind: "古籍",
-    status: "已核卷次",
-    note: "不要写成《朱子家礼》",
-    link: "https://www.shidianguji.com/book/NA12033/chapter/1m83nzubsm2w2",
-  },
-  {
-    n: 4,
-    title: "王守仁《南赣乡约》，明正德十三年（1518）十月，《王阳明全集》",
-    kind: "古籍",
-    status: "年代中高",
-    note: "卷次随版本而异（上古 1992 本卷十七；识典本编在卷十九「公移二」），引用必须注明版本",
-    link: "https://www.shidianguji.com/book/HY0775/chapter/1mb8exhm5hhka",
-  },
-  {
-    n: 5,
-    title: "国家级非遗「规约习俗（吕氏乡约乡仪）」，编号 Ⅹ-142，2021 年第五批，申报地陕西蓝田",
-    kind: "官方名录",
-    status: "已核",
-    link: "https://www.ihchina.cn/project_details/23900",
-  },
-  {
-    n: 6,
-    title: "《中华人民共和国城市居民委员会组织法》第二条、第三十条、第三十一条",
-    kind: "法条与政策",
-    status: "已核：1989 制定、2018 修正、2025-10-28 修订、2026-01-01 施行",
-    note: "第三十条为居民会议制定或修改居民公约，第三十一条为备案与合法性限制",
-    link: "https://www.xinhuanet.com/20251029/29af4ef2b04f43f68bad659009bbeaf7/c.html",
-  },
-  {
-    n: 7,
-    title: "民政部等七部门《关于做好村规民约和居民公约工作的指导意见》（民发〔2018〕144 号）",
-    kind: "法条与政策",
-    status: "已核表述",
-    note: "出处为民政部官网",
-  },
-  {
-    n: 8,
-    title:
-      "Wilson, J. Q., & Kelling, G. L. (1982). Broken Windows. The Atlantic Monthly, 249(3), 29–36, 38.",
-    kind: "期刊",
-    status: "已核（NCJRS 著录）",
-    link: "https://ojp.gov/ncjrs/virtual-library/abstracts/broken-windows",
-  },
-  {
-    n: 9,
-    title: "Keizer, K., Lindenberg, S., & Steg, L. (2008). The spreading of disorder. Science, 322(5908), 1681–1685.",
-    kind: "期刊",
-    status: "已核（PMID 19023045）",
-    link: "https://doi.org/10.1126/science.1161405",
-  },
-  {
-    n: 10,
-    title:
-      "Schultz, P. W., Nolan, J. M., Cialdini, R. B., Goldstein, N. J., & Griskevicius, V. (2007). The constructive, destructive, and reconstructive power of social norms. Psychological Science, 18(5), 429–434.",
-    kind: "期刊",
-    status: "已核（PMID 17576283）",
-    link: "https://doi.org/10.1111/j.1467-9280.2007.01917.x",
-  },
-];
-
-export const citationRules = [
-  "一手优先：能引原文的不引转述。",
-  "维基类页面只作线索、不作引用。",
-  "英文文献给原文＋中文译名，页面只显示中文。",
 ];
 
 export type Observation = {

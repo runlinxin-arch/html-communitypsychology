@@ -8,15 +8,11 @@ import { MethodLimits } from "./components/MethodLimits";
 import { Observations } from "./components/Observations";
 import { Pathways } from "./components/Pathways";
 import { ScriptDrawer } from "./components/ScriptDrawer";
-import { SourcesTable } from "./components/SourcesTable";
-import { TermTable } from "./components/TermTable";
 
 const nav = [
   { href: "#map", label: "本章地图" },
   { href: "#blindspots", label: "三扇看不见" },
   { href: "#pathways", label: "建设途径" },
-  { href: "#terms", label: "术语对照" },
-  { href: "#sources", label: "来源核证" },
   { href: "#observations", label: "三行观察" },
   { href: "#method", label: "方法与限制" },
 ];
@@ -165,8 +161,6 @@ export default function App() {
         <ChapterMap />
         <BlindSpots />
         <Pathways />
-        <TermTable />
-        <SourcesTable />
         <Observations />
         <MethodLimits />
       </div>
@@ -181,7 +175,7 @@ export default function App() {
             打印或导出 PDF 时：折叠与切换的内容会自动展开，页眉页脚与按钮不打印，正文里的外链会自动附出网址。
           </p>
           <p className="mt-3">
-            教材基准文本：第 124–148 页（25 页扫描件逐字核对）。外延材料的核证状态见「来源与核证状态」一栏。
+            教材基准文本：第 124–148 页（25 页扫描件逐字核对）；外延材料的来源与原书页码对照见幻灯片附录 A1。
           </p>
         </div>
       </footer>

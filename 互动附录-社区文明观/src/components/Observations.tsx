@@ -8,7 +8,7 @@ export function Observations() {
     <Section
       id="observations"
       kicker="我住的两个小区"
-      num="06"
+      num="04"
       title="三行观察"
       lead="这一章讲的都是别人；下面三件是我自己小区里的事。它们只用来对应机制，不用来证明趋势。"
     >
