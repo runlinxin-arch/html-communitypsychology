@@ -3,8 +3,8 @@
 
 用法（在项目根目录）：python3 build/重建.py
 
-管线：源文件 build/deck-src-未内嵌图片.html（含 __COVER__ / __CANA__ 两个占位符）
-  → 从上一版成品里取出两张内嵌图，重新替换回占位符
+管线：源文件 build/deck-src-未内嵌图片.html（图片位置写占位符，现在只剩 __CANA__ 一张）
+  → 从上一版成品里取出对应的内嵌图，重新替换回占位符
   → 写出 社区文明观-阅读汇报.html（自包含单文件）
   → 用无头 Chrome 重导 社区文明观-阅读汇报.pdf（@page 1280×720px，故 PDF 为 960×540pt / 14 页）
   → 复核：占位符残留、内嵌图数量、逐页横向/纵向溢出、PDF 页数
@@ -68,18 +68,26 @@ def main() -> int:
         return 1
 
     src = SRC.read_text(encoding="utf-8")
-    if "__COVER__" not in src or "__CANA__" not in src:
-        print("源文件里找不到 __COVER__ / __CANA__ 占位符，停止", file=sys.stderr)
+    # 占位符按需处理：封面底图已于 2026-09-21 按用户要求删除，__COVER__ 不再出现；
+    # 以后若再加图，只要在源里写回占位符即可，脚本不必改。
+    wanted = [t for t in ("__COVER__", "__CANA__") if t in src]
+    if not wanted:
+        print("源文件里一个图片占位符都没有，不必重建", file=sys.stderr)
         return 1
 
     prev = OUT.read_text(encoding="utf-8") if OUT.exists() else ""
-    cover = re.search(r"background-image:url\('(data:image/[^']+)'\)", prev)
-    cana = re.search(r'src="(data:image/[^"]+)"', prev)
-    if not cover or not cana:
-        print("上一版成品里取不到内嵌图（封面 / 卡纳莱托），停止", file=sys.stderr)
+    found = {
+        "__COVER__": re.search(r"background-image:url\('(data:image/[^']+)'\)", prev),
+        "__CANA__": re.search(r'src="(data:image/[^"]+)"', prev),
+    }
+    missing = [t for t in wanted if not found[t]]
+    if missing:
+        print(f"上一版成品里取不到内嵌图 {missing}，停止", file=sys.stderr)
         return 1
 
-    out = src.replace("__COVER__", cover.group(1)).replace("__CANA__", cana.group(1))
+    out = src
+    for token in wanted:
+        out = out.replace(token, found[token].group(1))
     OUT.write_text(out, encoding="utf-8")
     print(f"成品已写出：{OUT.name}（{len(out):,} 字符，内嵌图 {out.count('data:image')} 张，"
           f"占位符残留 {out.count('__COVER__') + out.count('__CANA__')}）")

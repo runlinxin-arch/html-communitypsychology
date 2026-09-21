@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import pathlib
 import re
 import subprocess
@@ -68,34 +67,51 @@ FALLBACK_RULES = [
     (r"prefers-reduced-motion: reduce\)\{[\s\S]*?\.anim-text\{clip-path:none", "减弱动效时没有强制终态 → 开了系统「减弱动态效果」的人会看不到内容"),
 ]
 
-# 封面信箱：信封落点必须留在「无字安全带」里（用户要求「信不盖住文字」，靠留白带保证）。
-# 带子的来源是封面各文字块实测包围盒：上边 = kicker 底 93，下边 = 标题块顶 379，
-# 右边 = 信箱左沿 980，左边 = 版心 72（幻灯片 1280×720，内边距 72）。
-MAIL_SAFE = {"top": 100, "bottom": 360, "left": 80, "right": 976}
-MAIL_PAD = 14  # 漂浮振幅（|dx|≤9、|dy|≤11）＋漂浮时再转 1.6° 的包围盒增量
+# 封面（P0）已经按用户要求去掉底图与信箱动画：静态断言钉死，防止手一滑又回来。
+# 底图是 291 KB 的 JPEG，占成品近一半体积；信箱那套（.mails/.mbdoor/.mbhit + 六个函数）整块撤掉，
+# 现在封面右侧只剩一个「一字未改」的 mailbox-01 线稿：viewBox 24×24、stroke-width 1.5。
+COVER_ICON_VIEWBOX = (24.0, 24.0)
+COVER_ICON_STROKE = 1.5
+# 每条 = (标签, 匹配式, 说明)。匹配式同时认 CSS 选择器写法（.letter）和标签写法（class="letter"），
+# 并且用 (?![-\w]) 挡住 letter-spacing 这类同前缀词——否则一条误报就能毁掉整个检查的可信度。
+def _dead(cls: str) -> str:
+    c = re.escape(cls)
+    return rf"\.{c}(?![-\w])|class=\"[^\"]*(?<![-\w]){c}(?![-\w])"
 
 
-def mail_geometry(src: str):
-    """从 CSS 里解析信件落点，算出每封信在屏幕坐标下的静态包围盒。"""
-    m = re.search(r"\.mailbox\{[^}]*?right:(\d+)px;top:(\d+)px;width:(\d+)px", src)
-    l = re.search(r"\.letter\{[^}]*?top:(\d+)px;width:(\d+)px;height:(\d+)px", src)
-    ml = re.search(r"\.letter\{[^}]*?margin-left:(-?\d+)px", src)
-    if not (m and l and ml):
-        return None
-    right, mtop, mw = (int(v) for v in m.groups())
-    ltop, lw, lh = (int(v) for v in l.groups())
-    if int(ml.group(1)) != -lw // 2:
-        return None                      # 信件没有在投信口上水平居中，落点就不成立
-    base_x, base_y = 1280 - right - mw / 2, mtop + ltop + lh / 2
-    out = []
-    for mm in re.finditer(r'\.letter\[data-i="(\d+)"\]\{--tx:(-?\d+)px;--ty:(-?\d+)px;--rot:(-?[\d.]+)deg', src):
-        i, tx, ty, rot = mm.group(1), int(mm.group(2)), int(mm.group(3)), float(mm.group(4))
-        rad = math.radians(abs(rot))
-        hw = (lw * math.cos(rad) + lh * math.sin(rad)) / 2
-        hh = (lw * math.sin(rad) + lh * math.cos(rad)) / 2
-        cx, cy = base_x + tx, base_y + ty
-        out.append((i, cx - hw, cy - hh, cx + hw, cy + hh))
-    return out
+DEAD_COVER_TOKENS = [
+    ("cover-bg", _dead("cover-bg"), "封面的底图容器"),
+    ("__COVER__", r"__COVER__", "封面底图占位符"),
+    ("mailbox", _dead("mailbox"), "封面的信箱容器"),
+    ("mails", _dead("mails"), "信封层"),
+    ("letter", _dead("letter"), "信封"),
+    ("mbdoor", _dead("mbdoor"), "信箱门扇"),
+    ("mbsvg", _dead("mbsvg"), "信箱 SVG 容器"),
+    ("mbhit", _dead("mbhit"), "信箱命中矩形"),
+    ("mbpost", _dead("mbpost"), "信箱立柱"),
+    ("mbcavity", _dead("mbcavity"), "信箱内腔"),
+    ("mbhandle", _dead("mbhandle"), "信箱把手"),
+    ("resetMailbox", r"\bresetMailbox\b", "信箱开合 JS"),
+    ("openMailbox", r"\bopenMailbox\b", "信箱开合 JS"),
+    ("closeMailbox", r"\bcloseMailbox\b", "信箱开合 JS"),
+]
+
+# 只该在封面出现的死代码：全篇任一页出现都算残留
+DECK_WIDE_DEAD = {"mailbox", "mails", "letter", "mbdoor", "mbsvg", "mbhit", "mbpost",
+                  "mbcavity", "mbhandle", "resetMailbox", "openMailbox", "closeMailbox"}
+
+
+def strip_comments(src: str) -> str:
+    """去掉 HTML 与 CSS 注释再扫「残留代码」——注释里提到类名不算残留。"""
+    src = re.sub(r"<!--[\s\S]*?-->", "", src)
+    return re.sub(r"/\*[\s\S]*?\*/", "", src)
+
+
+def cover_section(src: str):
+    """取出 P0 封面那一段 HTML。"""
+    m = re.search(r'<section class="slide dark on">([\s\S]*?)</section>', src)
+    return m.group(1) if m else None
+
 
 problems: list[str] = []
 notes: list[str] = []
@@ -166,8 +182,11 @@ def main() -> int:
             if token in html:
                 problems.append(f"deck 成品里残留占位符 {token}")
         n_img = html.count("data:image")
-        if n_img != 2:
-            problems.append(f"deck 成品内嵌图 {n_img} 张（应为 2）")
+        # 期望张数 = 源文件里还剩几个图片占位符（现在只剩 __CANA__ 一张）
+        want_img = sum(1 for t in ("__COVER__", "__CANA__") if t in DECK_SRC.read_text(encoding="utf-8")) \
+            if DECK_SRC.exists() else 1
+        if n_img != want_img:
+            problems.append(f"deck 成品内嵌图 {n_img} 张（源里尚有 {want_img} 个占位符）→ 成品与源不同步")
         n_slide = len(re.findall(r'<section class="slide', html))
         n_notes = len(re.findall(r'<aside class="notes"', html))
         if n_slide != 14:
@@ -200,44 +219,35 @@ def main() -> int:
         for pat, why in FALLBACK_RULES:
             if re.search(pat, src) is None:
                 problems.append(f"deck 动效兜底：{why}")
-        geo = mail_geometry(src)
-        if geo is None:
-            problems.append("deck 封面信箱：解析不到 .mailbox/.letter 的几何参数（间距写法变了？）")
+        # 封面：无底图、无信箱动画，只剩一个未改动的 mailbox-01 线稿
+        bare = strip_comments(src)
+        cover = cover_section(bare)
+        if cover is None:
+            problems.append("deck 封面：解析不到 P0 封面段落（<section class=\"slide dark on\"> 变了？）")
         else:
-            for i, l, t, r, b in geo:
-                if (t - MAIL_PAD < MAIL_SAFE["top"] or b + MAIL_PAD > MAIL_SAFE["bottom"]
-                        or l - MAIL_PAD < MAIL_SAFE["left"] or r + MAIL_PAD > MAIL_SAFE["right"]):
-                    problems.append(
-                        f"deck 封面信箱：第 {i} 封信落点 x {l:.0f}–{r:.0f} / y {t:.0f}–{b:.0f}"
-                        f"（含 {MAIL_PAD}px 余量）超出无字安全带 "
-                        f"y {MAIL_SAFE['top']}–{MAIL_SAFE['bottom']}、x {MAIL_SAFE['left']}–{MAIL_SAFE['right']}"
-                        f" → 会盖住封面的字")
-            if re.search(r"@media print\{[\s\S]*?\.mails \.letter\{opacity:1", src) is None:
-                problems.append("deck 封面信箱：打印规则里没有 .mails .letter{opacity:1} → 导出的 PDF 封面会少掉信")
-            notes.append(f"信箱：{len(geo)} 封信落点都在无字安全带内（y {MAIL_SAFE['top']}–{MAIL_SAFE['bottom']}）")
-        # 图标信箱：立柱必须真的落到画面底边，SVG 与 viewBox 必须等比，门扇铰链原点必须用 view-box。
-        # 这三条都是实测踩出来的：立柱短一截就悬空；宽高比不等比会把 1.5 的描边拉成粗细不均；
-        # transform-box 写 fill-box 时 Chrome 算出的原点不在门上（门往左上缩而不是往下掀）。
-        mm = re.search(r"\.mailbox\{[^}]*?right:(\d+)px;top:(\d+)px;width:(\d+)px", src)
-        sv = re.search(r"\.mbsvg\{[^}]*?width:(\d+)px;height:(\d+)px", src)
-        vb = re.search(r'class="mbsvg"[^>]*viewBox="0 0 ([\d.]+) ([\d.]+)"', src)
-        po = re.search(r'class="mbpost" d="M12\.5 18L12\.5 ([\d.]+)"', src)
-        if not (mm and sv and vb and po):
-            problems.append("deck 封面信箱：解析不到立柱 / .mbsvg 尺寸 / viewBox（写法变了？）")
-        else:
-            mtop, mh = int(mm.group(2)), int(sv.group(2))
-            vw, vh = float(vb.group(1)), float(vb.group(2))
-            if mtop + mh != 720:
-                problems.append(f"deck 封面信箱：SVG 底边落在 y={mtop + mh}，没顶到画面底边 720 → 立柱悬空")
-            if abs(int(sv.group(1)) / vw - mh / vh) > 0.01:
-                problems.append("deck 封面信箱：.mbsvg 的宽高比与 viewBox 不一致 → 描边会被拉伸成粗细不均")
-            if abs(float(po.group(1)) - vh) > 0.01:
-                problems.append(f"deck 封面信箱：立柱终点 y={po.group(1)} ≠ viewBox 高度 {vh} → 差一截没到底")
-            notes.append(f"信箱：立柱落到画面底边 y=720，SVG 与 viewBox 等比（1:{mh / vh:.2f}）")
-        if re.search(r"\.mbdoor\{[^}]*transform-box:fill-box", src):
-            problems.append("deck 封面信箱：门扇用了 transform-box:fill-box → 铰链原点会算错，门不会往下掀")
-        if re.search(r"\.mbdoor\{[^}]*transform-box:view-box", src) is None:
-            problems.append("deck 封面信箱：门扇缺少 transform-box:view-box（铰链原点按 viewBox 坐标算）")
+            for label, pat, why in DEAD_COVER_TOKENS:
+                if re.search(pat, cover):
+                    problems.append(f"deck 封面：{why}又出现了（{label}）→ 用户已要求撤掉")
+            if "data:image" in cover:
+                problems.append("deck 封面：又内嵌了图片 → 用户已要求删除首页背景图")
+            icon = re.search(r'<div class="cover-mark"[^>]*>\s*<svg viewBox="0 0 ([\d.]+) ([\d.]+)"', cover)
+            if icon is None:
+                problems.append("deck 封面：找不到 .cover-mark 里的 mailbox-01 线稿")
+            else:
+                vw, vh = float(icon.group(1)), float(icon.group(2))
+                if (vw, vh) != COVER_ICON_VIEWBOX:
+                    problems.append(f"deck 封面：线稿 viewBox 是 {vw:g}×{vh:g}，应为 24×24（图标被改过比例）")
+                stroke = re.search(r"\.cover-mark svg\{[^}]*?stroke-width:([\d.]+)", bare)
+                if stroke is None or abs(float(stroke.group(1)) - COVER_ICON_STROKE) > 0.001:
+                    problems.append("deck 封面：线稿 stroke-width 不是原始的 1.5（描边被改过）")
+                if re.search(r'class="cover-mark"[^>]*(tabindex|role)=', cover):
+                    problems.append("deck 封面：线稿被做成了可交互元素（tabindex/role）→ 应保持纯装饰")
+            notes.append("封面：无底图、无信箱动画，只剩静态 mailbox-01 线稿（viewBox 24×24 / 描边 1.5）")
+        # 全篇不该再残留任何信箱动效代码（已去掉注释，注释里提类名不算）
+        for label, pat, why in DEAD_COVER_TOKENS:
+            if label in DECK_WIDE_DEAD and re.search(pat, bare):
+                problems.append(f"deck：还残留{why}的代码（{label}）→ 应已整块撤掉")
+
         if not problems:
             notes.append(f"动效：{len(ANIM_RULES) + len(FALLBACK_RULES)} 条不变量通过")
 
