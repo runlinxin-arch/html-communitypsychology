@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/同步交付物.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
