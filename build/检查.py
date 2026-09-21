@@ -40,6 +40,13 @@ BANNED = [
     ("看不见未来", "三扇看不见 → 第三扇写作「看不见将来」"),
 ]
 
+# 手工维护的副本（不是构建产物）：必须与原件逐字节相同，否则改一处、另一处静默过期。
+# 被选中的判据：原件与副本内容一致、且副本是手写的（构建产物另有 1') 那段管）。
+MIRRORS: list[tuple[pathlib.Path, pathlib.Path, str]] = [
+    (SCRIPT, APP / "src" / "讲稿.md",
+     "附录的「讲稿」抽屉读的是这份副本（src/script.ts 用 ?raw 导入）"),
+]
+
 # 动效这块踩过的坑都是「看着没事、实际有事」，写成静态断言钉住
 ANIM_RULES = [
     # （正则, 期望命中?, 说明）
@@ -84,7 +91,8 @@ def check(files: list[pathlib.Path]) -> None:
 
 
 def main() -> int:
-    check([DECK_SRC, DECK_HTML, DECK_PDF, APP_DIST, APP_ROOT_COPY, SCRIPT])
+    check([DECK_SRC, DECK_HTML, DECK_PDF, APP_DIST, APP_ROOT_COPY, SCRIPT,
+           *[c for _, c, _ in MIRRORS]])
 
     # 1) 时间戳链：deck 源 → 成品 → PDF
     if DECK_SRC.exists() and DECK_HTML.exists():
@@ -110,6 +118,16 @@ def main() -> int:
             problems.append(f"附录源文件比构建产物新（{rel}）→ 跑 cd 互动附录-社区文明观 && npm run build")
         if APP_ROOT_COPY.exists() and sha(APP_DIST) != sha(APP_ROOT_COPY):
             problems.append("根目录交付副本与 dist 内容不一致 → 跑 node 互动附录-社区文明观/scripts/同步交付物.mjs")
+
+    # 2') 手工维护的副本：用 sha256 比对，不看时间戳
+    for orig, copy, why in MIRRORS:
+        if not (orig.exists() and copy.exists()):
+            continue
+        if sha(orig) != sha(copy):
+            problems.append(f"副本与原件不一致：{copy.relative_to(ROOT)} 与 {orig.relative_to(ROOT)} 内容不同"
+                            f"（{why}）→ 跑 cp \"{orig.name}\" \"{copy.relative_to(ROOT)}\" 同步后再 npm run build")
+        else:
+            notes.append(f"副本：{copy.relative_to(ROOT)} 与 {orig.name} 逐字节一致")
 
     # 3) 结构完整性
     if DECK_HTML.exists():
