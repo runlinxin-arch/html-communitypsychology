@@ -215,6 +215,29 @@ def main() -> int:
             if re.search(r"@media print\{[\s\S]*?\.mails \.letter\{opacity:1", src) is None:
                 problems.append("deck 封面信箱：打印规则里没有 .mails .letter{opacity:1} → 导出的 PDF 封面会少掉信")
             notes.append(f"信箱：{len(geo)} 封信落点都在无字安全带内（y {MAIL_SAFE['top']}–{MAIL_SAFE['bottom']}）")
+        # 图标信箱：立柱必须真的落到画面底边，SVG 与 viewBox 必须等比，门扇铰链原点必须用 view-box。
+        # 这三条都是实测踩出来的：立柱短一截就悬空；宽高比不等比会把 1.5 的描边拉成粗细不均；
+        # transform-box 写 fill-box 时 Chrome 算出的原点不在门上（门往左上缩而不是往下掀）。
+        mm = re.search(r"\.mailbox\{[^}]*?right:(\d+)px;top:(\d+)px;width:(\d+)px", src)
+        sv = re.search(r"\.mbsvg\{[^}]*?width:(\d+)px;height:(\d+)px", src)
+        vb = re.search(r'class="mbsvg"[^>]*viewBox="0 0 ([\d.]+) ([\d.]+)"', src)
+        po = re.search(r'class="mbpost" d="M12\.5 18L12\.5 ([\d.]+)"', src)
+        if not (mm and sv and vb and po):
+            problems.append("deck 封面信箱：解析不到立柱 / .mbsvg 尺寸 / viewBox（写法变了？）")
+        else:
+            mtop, mh = int(mm.group(2)), int(sv.group(2))
+            vw, vh = float(vb.group(1)), float(vb.group(2))
+            if mtop + mh != 720:
+                problems.append(f"deck 封面信箱：SVG 底边落在 y={mtop + mh}，没顶到画面底边 720 → 立柱悬空")
+            if abs(int(sv.group(1)) / vw - mh / vh) > 0.01:
+                problems.append("deck 封面信箱：.mbsvg 的宽高比与 viewBox 不一致 → 描边会被拉伸成粗细不均")
+            if abs(float(po.group(1)) - vh) > 0.01:
+                problems.append(f"deck 封面信箱：立柱终点 y={po.group(1)} ≠ viewBox 高度 {vh} → 差一截没到底")
+            notes.append(f"信箱：立柱落到画面底边 y=720，SVG 与 viewBox 等比（1:{mh / vh:.2f}）")
+        if re.search(r"\.mbdoor\{[^}]*transform-box:fill-box", src):
+            problems.append("deck 封面信箱：门扇用了 transform-box:fill-box → 铰链原点会算错，门不会往下掀")
+        if re.search(r"\.mbdoor\{[^}]*transform-box:view-box", src) is None:
+            problems.append("deck 封面信箱：门扇缺少 transform-box:view-box（铰链原点按 viewBox 坐标算）")
         if not problems:
             notes.append(f"动效：{len(ANIM_RULES) + len(FALLBACK_RULES)} 条不变量通过")
 

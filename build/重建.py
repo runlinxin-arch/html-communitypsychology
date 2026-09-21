@@ -35,6 +35,10 @@ def sha256(path: pathlib.Path) -> str:
 MEASURE_JS = """
 <script>
 window.addEventListener('load',function(){
+  // 先把所有动画定格到终态再量：入场动画是 fill:'both' + delay 的 WAAPI，
+  // 测量时若还停在延迟段，元素会被首帧的 translateY(10px) 顶到画面外，
+  // 报出根本不存在的「纵溢」（封面信箱贴到画面底边时踩过一次）。
+  document.getAnimations().forEach(function(a){ try{a.finish();}catch(e){} });
   var stage=document.getElementById('stage'); stage.style.transform='none';
   var out=[];
   document.querySelectorAll('.slide').forEach(function(sl,i){

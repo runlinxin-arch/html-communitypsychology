@@ -39,12 +39,14 @@ body{background:#0E0029;color:var(--ink);font-family:var(--sans);overflow:hidden
    板块淡入上浮，块内文字用 clip-path 由左向右擦出。
    注意：不要用「加类/去类」驱动，否则回看已访问过的页时类没有真正变化，动画会丢。 */
 body.noanim .anim{opacity:1!important;transform:none!important;transition:none!important;animation:none!important}
+/* 按 A 关动效时门扇也不该再走 transition，否则「点一下」不是静态终态而是 0.55s 的过渡 */
+body.noanim .mbdoor{transition:none!important}
 body.noanim .anim-text{clip-path:none!important;transition:none!important;animation:none!important}
 body.noanim .slide{transition:none!important}
 @media (prefers-reduced-motion: reduce){.anim{opacity:1!important;transform:none!important;animation:none!important}
   .anim-text{clip-path:none!important;animation:none!important}
   .slide,.slide.out{transition:none!important}
-  .mdoor{transition:none!important}}
+  .mbdoor{transition:none!important}}
 .kicker{font-size:13px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:14px}
 .slide.dark .kicker{color:rgba(229,225,214,.66)}
 .kicker .num{font-family:var(--serif);font-size:15px;letter-spacing:.1em;color:var(--accent)}
@@ -86,45 +88,55 @@ figure{margin:0}
 figure img{display:block;width:100%;height:auto;border-radius:10px}
 figcaption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
 .slide.dark figcaption{color:rgba(229,225,214,.6)}
-/* 封面信箱：点投信口 → 门扇打开 → 信一封封飘出到左侧，随后原位漂浮。
+/* 封面信箱：点信箱门 → 门扇放下 → 信一封封飘出到左侧，随后原位漂浮。
    落点全部落在 y 100–360 这条带里 —— 上方避开 kicker（底 93），下方避开标题块（顶 379），
    所以「信不盖住任何文字」是靠留白带保证的，不靠运气。改 --ty 前先看 build/检查.py 的几何断言。 */
-.mailbox{position:absolute;right:88px;top:168px;width:212px;rotate:-2deg;cursor:pointer;z-index:3}
-/* perspective 必须挂在门扇的父元素上，否则 rotateX 只是「压扁」而不是掀开；
-   这一层也不能 overflow:hidden —— 会把飞出去的信全裁掉（踩过一次）。 */
-.mbox{position:relative;width:212px;height:150px;border-radius:12px;perspective:760px;
-  background:linear-gradient(180deg,#F4F1E9,#DCD7C9);border:1px solid rgba(28,0,79,.18);
-  box-shadow:0 22px 46px rgba(0,0,0,.45)}
-.mbox::before{content:"";position:absolute;inset:7px;border-radius:7px;background:linear-gradient(180deg,#150A33,#2A0B6B)}
-.mdoor{position:absolute;inset:0;border-radius:12px;z-index:2;transform-origin:50% 0;
-  background:linear-gradient(180deg,#F4F1E9,#DCD7C9);border:1px solid rgba(28,0,79,.18);
+/* 封面信箱：图标取自 HugeIcons「mailbox-01」(24 宽 viewBox 的线性图)，做了三处改动 ——
+   ① 立柱从原来的 y=18→22 延长到 y=62.5，顶到画面底边（竖线必须铅直，所以取消了旧版的 rotate:-2deg）；
+   ② 配色换成版面基调：外壳骨白描边、内腔近黑、门板半透明骨白、把手用 --accent；
+   ③ 门扇按「底边中点」铰链 rotateX 掀开（旧版是顶部铰链的盖子）。
+   .mailbox 元素刻意只占 150px 宽（图标 240px 往右溢出）——这样 .letter 的 left:50% 正好落在门扇中心，
+   也就是信件飘出的原点，build/检查.py 的落点公式才继续成立。 */
+.mailbox{position:absolute;right:160px;top:105px;width:150px;cursor:pointer;z-index:3;outline:none}
+/* 不要给 .mbsvg 加 filter:drop-shadow —— filter 会把元素的测量盒撑大，
+   build/重建.py 的逐页溢出检查会报「纵溢」（实测底部多出 10px），而且真正的越界会被噪声淹没。 */
+.mbsvg{position:absolute;left:0;top:0;width:240px;height:615px;overflow:visible;
+  perspective:460px;perspective-origin:75px 180px}
+.mailbox:focus-visible .mbsvg{outline:1px solid rgba(113,38,255,.9);outline-offset:6px;border-radius:6px}
+.mbcase,.mbpost{fill:none;stroke:#EDE9DE;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* 立柱比外壳描边细、且不与背景抢：它要一直落到画面底边（y=61.5 就是幻灯片下沿），
+   15px 的满白描边在画面里像一根棒棒糖棍，实测 10px + 85% 不透明度才读得出「一根柱子」。 */
+.mbpost{stroke-linecap:butt;stroke-width:1;stroke:rgba(237,233,222,.85)}
+.mbcavity{fill:#05010F}
+.mbhit{fill:transparent;stroke:none}
+.mbfill{fill:rgba(237,233,222,.26)}
+.mbline{fill:none;stroke:#EDE9DE;stroke-width:1.5;stroke-linejoin:round}
+.mbhandle{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;transition:stroke .2s}
+.mailbox:hover .mbhandle,.mailbox:focus-visible .mbhandle{stroke:#B79BFF}
+/* 铰链 = 门扇底边中点 (viewBox 7.5,18)。transform-box 必须写 view-box：
+   写 fill-box 时 Chrome 算出来的原点不在门上（实测门会往左上缩，不是往下掀）。 */
+.mbdoor{transform-box:view-box;transform-origin:7.5px 18px;
   transition:transform .55s cubic-bezier(.34,.72,.24,1)}
-.mailbox.open .mdoor{transform:rotateX(-62deg)}
-.mslot{position:absolute;left:50%;top:46px;width:118px;height:11px;margin-left:-59px;border-radius:2px;
-  background:rgba(20,8,48,.9);box-shadow:inset 0 2px 5px rgba(0,0,0,.55);transition:background .2s,box-shadow .2s}
-.mailbox:hover .mslot,.mailbox:focus-visible .mslot{background:rgba(113,38,255,.85);box-shadow:0 0 0 3px rgba(113,38,255,.28)}
-.mplate{position:absolute;left:50%;top:92px;margin-left:-41px;width:82px;text-align:center;padding:4px 0 5px;
-  font-family:var(--serif);font-size:12.5px;letter-spacing:.32em;text-indent:.32em;color:rgba(28,0,79,.66);
-  border:1px solid rgba(28,0,79,.24);border-radius:3px}
-.letter{position:absolute;left:50%;top:22px;width:92px;height:60px;margin-left:-46px;z-index:3;
+.mailbox.open .mbdoor{transform:rotateX(75deg)}
+.letter{position:absolute;left:50%;top:85px;width:92px;height:60px;margin-left:-46px;z-index:3;
   opacity:0;pointer-events:none;transform-origin:50% 50%;
   background:#FBF9F4;border:1px solid rgba(28,0,79,.26);border-radius:4px;box-shadow:0 10px 22px rgba(0,0,0,.34)}
 .letter::before{content:"";position:absolute;inset:0;border-radius:3px;
   background:linear-gradient(158deg,transparent 49.5%,rgba(28,0,79,.22) 50%,rgba(28,0,79,.22) 50.6%,transparent 51%)}
 .letter::after{content:"";position:absolute;right:8px;top:8px;width:15px;height:18px;border-radius:2px;
   border:1px solid rgba(28,0,79,.3);background:repeating-linear-gradient(135deg,rgba(113,38,255,.22) 0 3px,transparent 3px 6px)}
-.letter[data-i="0"]{--tx:-876px;--ty:-58px;--rot:-7deg;--d:0ms}
-.letter[data-i="1"]{--tx:-696px;--ty:56px;--rot:5deg;--d:220ms}
-.letter[data-i="2"]{--tx:-518px;--ty:-62px;--rot:3deg;--d:440ms}
-.letter[data-i="3"]{--tx:-342px;--ty:58px;--rot:-4.5deg;--d:660ms}
-.letter[data-i="4"]{--tx:-186px;--ty:-58px;--rot:6deg;--d:880ms}
+.letter[data-i="0"]{--tx:-835px;--ty:-58px;--rot:-7deg;--d:0ms}
+.letter[data-i="1"]{--tx:-655px;--ty:56px;--rot:5deg;--d:220ms}
+.letter[data-i="2"]{--tx:-477px;--ty:-62px;--rot:3deg;--d:440ms}
+.letter[data-i="3"]{--tx:-301px;--ty:58px;--rot:-4.5deg;--d:660ms}
+.letter[data-i="4"]{--tx:-145px;--ty:-58px;--rot:6deg;--d:880ms}
 /* 信单独放一层、不跟着信箱一起转：否则 -2° 会把每封信的落点按 tx·sin2° 整体拉偏
    （实测最下面那封被压低 30px，差点蹭到标题）。分开放后落点＝基准位＋(--tx,--ty)，可以纯算术校验。 */
-.mails{position:absolute;right:88px;top:168px;width:212px;height:150px;z-index:4;pointer-events:none}
+.mails{position:absolute;right:160px;top:105px;width:150px;z-index:4;pointer-events:none}
 /* 静态终态：减弱动效、按 A 关动效、打印三种情况下都靠这条显示信件 */
 .mailbox.open ~ .mails .letter{opacity:1;transform:translate(var(--tx),var(--ty)) rotate(var(--rot))}
-.mailbox .cap{position:absolute;left:0;right:0;top:158px;text-align:center;font-size:11px;letter-spacing:.08em;
-  color:rgba(229,225,214,.6);transition:opacity .3s}
+.mailbox .cap{position:absolute;left:25px;top:192px;width:96px;font-size:11px;letter-spacing:.06em;white-space:nowrap;
+  color:rgba(229,225,214,.72);transition:opacity .3s;text-shadow:0 1px 5px rgba(10,0,32,.85)}
 .cover-bg{position:absolute;inset:0;background-size:cover;background-position:center 62%;z-index:0}
 .cover-veil{position:absolute;inset:0;z-index:1;background:
   linear-gradient(100deg,rgba(28,0,79,.94) 0%,rgba(28,0,79,.86) 42%,rgba(28,0,79,.62) 100%)}
@@ -157,7 +169,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   .anim{opacity:1!important;transform:none!important;transition:none!important}
   .anim-text{clip-path:none!important;transition:none!important}
   /* 打印时信箱固定为「门开着、信已飘出」的静态终态：纸面上也要看得懂 */
-  .mdoor{transform:rotateX(-62deg)!important;transition:none!important}
+  .mbdoor{transform:rotateX(75deg)!important;transition:none!important}
   .mails .letter{opacity:1!important;transform:translate(var(--tx),var(--ty)) rotate(var(--rot))!important}
   .mailbox .cap{display:none!important}
   .slide:last-child{break-after:auto}
@@ -181,10 +193,19 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
     <span class="credit">底图：徐扬《乾隆南巡图》卷六（局部），1770，大都会艺术博物馆，公共领域</span>
   </div>
   <div class="mailbox" role="button" tabindex="0" aria-label="打开信箱">
-    <div class="mbox">
-      <div class="mdoor"><div class="mslot"></div><div class="mplate">信　箱</div></div>
-    </div>
-    <div class="cap">点一下投信口</div>
+    <svg class="mbsvg" viewBox="0 0 24 61.5" aria-hidden="true">
+      <path class="mbcavity" d="M12.5 18V11C12.5 10.071 12.5 9.60649 12.439 9.21782C12.1002 7.07836 10.4222 5.40041 8.28276 5.06155C8.2009 5.04859 8.11566 5.03835 8.02344 5.03027C7.1 5.01 6.1 5.19 5.14302 5.59039C4.27088 6.05656 3.55656 6.77088 3.09039 7.64302C2.5 8.74757 2.5 10.2067 2.5 13.125C2.5 14.876 2.5 15.7515 2.85424 16.4142C3.13394 16.9375 3.56253 17.3661 4.08581 17.6458C4.74854 18 5.62403 18 7.375 18Z"/>
+      <path class="mbcase" d="M17.5 8V4C17.5 2.89543 18.3954 2 19.5 2"/>
+      <path class="mbcase" d="M17.5 5.15889C16.5351 5 15.2591 5 13.375 5H10.625C7.70671 5 6.24757 5 5.14302 5.59039C4.27088 6.05656 3.55656 6.77088 3.09039 7.64302C2.5 8.74757 2.5 10.2067 2.5 13.125C2.5 14.876 2.5 15.7515 2.85424 16.4142C3.13394 16.9375 3.56253 17.3661 4.08581 17.6458C4.74854 18 5.62403 18 7.375 18H16.625C18.376 18 19.2515 18 19.9142 17.6458C20.4375 17.3661 20.8661 16.9375 21.1458 16.4142C21.5 15.7515 21.5 14.876 21.5 13.125C21.5 10.2067 21.5 8.74757 20.9096 7.64302C20.7356 7.31755 20.5271 7.01406 20.2887 6.73725"/>
+      <path class="mbpost" d="M12.5 18L12.5 61.5"/>
+      <g class="mbdoor">
+        <path class="mbfill" d="M12.5 18V11C12.5 10.071 12.5 9.60649 12.439 9.21782C12.1002 7.07836 10.4222 5.40041 8.28276 5.06155C8.2009 5.04859 8.11566 5.03835 8.02344 5.03027C7.1 5.01 6.1 5.19 5.14302 5.59039C4.27088 6.05656 3.55656 6.77088 3.09039 7.64302C2.5 8.74757 2.5 10.2067 2.5 13.125C2.5 14.876 2.5 15.7515 2.85424 16.4142C3.13394 16.9375 3.56253 17.3661 4.08581 17.6458C4.74854 18 5.62403 18 7.375 18Z"/>
+        <path class="mbline" d="M12.5 18V11C12.5 10.071 12.5 9.60649 12.439 9.21782C12.1002 7.07836 10.4222 5.40041 8.28276 5.06155C8.2009 5.04859 8.11566 5.03835 8.02344 5.03027C7.1 5.01 6.1 5.19 5.14302 5.59039C4.27088 6.05656 3.55656 6.77088 3.09039 7.64302C2.5 8.74757 2.5 10.2067 2.5 13.125C2.5 14.876 2.5 15.7515 2.85424 16.4142C3.13394 16.9375 3.56253 17.3661 4.08581 17.6458C4.74854 18 5.62403 18 7.375 18Z"/>
+        <path class="mbhandle" d="M6.5 9H8.5"/>
+      </g>
+      <rect class="mbhit" x="1" y="1" width="22" height="18"/>
+    </svg>
+    <div class="cap">点一下信箱门</div>
   </div>
   <div class="mails">
     <div class="letter" data-i="0"></div>
@@ -558,7 +579,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   }
   var SEL=':scope > *:not(.notes):not(.cover-bg):not(.cover-veil), .body > *, .grid2 > *, .grid3 > *, .row > *, .footer > *';
   // .toc>span / .credit / 信箱铭牌与提示 / 页脚页码 .footer .src 原本没有擦出，一并补上
-  var TEXT='p,li,h1,h2,h3,h4,figcaption,td,th,.kicker,.small,.big,.bigger,.quote,.lead,.toc>span,.credit,.mplate,.mailbox .cap,.footer .src';
+  var TEXT='p,li,h1,h2,h3,h4,figcaption,td,th,.kicker,.small,.big,.bigger,.quote,.lead,.toc>span,.credit,.mailbox .cap,.footer .src';
   var cssv=getComputedStyle(document.documentElement);
   var STAGGER=parseFloat(cssv.getPropertyValue('--stagger'))||70;   // 板块之间的间隔
   var DUR_BLOCK=parseFloat(cssv.getPropertyValue('--anim-in'))||200;
@@ -596,7 +617,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   function resetMailbox(slide){
     var box=mbox(slide); if(!box)return;
     box.classList.remove('open');
-    [].slice.call(slide.querySelectorAll('.mdoor,.mails .letter')).forEach(function(el){
+    [].slice.call(slide.querySelectorAll('.mbdoor,.mails .letter')).forEach(function(el){
       el.getAnimations().forEach(function(a){a.cancel();});
     });
     var cap=box.querySelector('.cap'); if(cap){cap.style.opacity='';}
@@ -606,12 +627,12 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
     box.classList.add('open');
     var cap=box.querySelector('.cap'); if(cap){cap.style.opacity='0';}
     if(animOff())return;                     // 减弱动效：直接给静态终态
-    var door=box.querySelector('.mdoor');
-    door.animate([{transform:'rotateX(0deg)'},{transform:'rotateX(-62deg)'}],
+    var door=box.querySelector('.mbdoor');
+    door.animate([{transform:'rotateX(0deg)'},{transform:'rotateX(75deg)'}],
       {duration:DUR_DOOR,easing:'cubic-bezier(.34,.72,.24,1)',fill:'both'});
     [].slice.call(slide.querySelectorAll('.mails .letter')).forEach(function(el,i){
       var p=restOf(el), d=i*220, end=restStr(p);
-      // 三段：从投信口冒出 → 向左偏上的弧线 → 落到静止位（飘，不是直线飞）
+      // 三段：从门口冒出 → 向左偏上的弧线 → 落到静止位（飘，不是直线飞）
       var fly=el.animate([
         {transform:'translate(0px,0px) rotate(0deg) scale(.5)',opacity:0,offset:0},
         {transform:'translate('+(p.tx*.06)+'px,'+(p.ty*.06-18)+'px) rotate('+(p.rot*.4)+'deg) scale(.86)',opacity:1,offset:.22},
@@ -629,7 +650,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   function closeMailbox(slide){
     var box=mbox(slide); if(!box||!box.classList.contains('open'))return;
     box.classList.remove('open');
-    var door=box.querySelector('.mdoor');
+    var door=box.querySelector('.mbdoor');
     door.getAnimations().forEach(function(a){a.cancel();});
     [].slice.call(slide.querySelectorAll('.mails .letter')).forEach(function(el,i){
       var p=restOf(el);
