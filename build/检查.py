@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import pathlib
 import re
 import subprocess
@@ -66,6 +67,35 @@ FALLBACK_RULES = [
     (r"@media print\{[\s\S]*?\.anim-text\{clip-path:none", "打印时没有 .anim-text{clip-path:none} → PDF 会缺字"),
     (r"prefers-reduced-motion: reduce\)\{[\s\S]*?\.anim-text\{clip-path:none", "减弱动效时没有强制终态 → 开了系统「减弱动态效果」的人会看不到内容"),
 ]
+
+# 封面信箱：信封落点必须留在「无字安全带」里（用户要求「信不盖住文字」，靠留白带保证）。
+# 带子的来源是封面各文字块实测包围盒：上边 = kicker 底 93，下边 = 标题块顶 379，
+# 右边 = 信箱左沿 980，左边 = 版心 72（幻灯片 1280×720，内边距 72）。
+MAIL_SAFE = {"top": 100, "bottom": 360, "left": 80, "right": 976}
+MAIL_PAD = 14  # 漂浮振幅（|dx|≤9、|dy|≤11）＋漂浮时再转 1.6° 的包围盒增量
+
+
+def mail_geometry(src: str):
+    """从 CSS 里解析信件落点，算出每封信在屏幕坐标下的静态包围盒。"""
+    m = re.search(r"\.mailbox\{[^}]*?right:(\d+)px;top:(\d+)px;width:(\d+)px", src)
+    l = re.search(r"\.letter\{[^}]*?top:(\d+)px;width:(\d+)px;height:(\d+)px", src)
+    ml = re.search(r"\.letter\{[^}]*?margin-left:(-?\d+)px", src)
+    if not (m and l and ml):
+        return None
+    right, mtop, mw = (int(v) for v in m.groups())
+    ltop, lw, lh = (int(v) for v in l.groups())
+    if int(ml.group(1)) != -lw // 2:
+        return None                      # 信件没有在投信口上水平居中，落点就不成立
+    base_x, base_y = 1280 - right - mw / 2, mtop + ltop + lh / 2
+    out = []
+    for mm in re.finditer(r'\.letter\[data-i="(\d+)"\]\{--tx:(-?\d+)px;--ty:(-?\d+)px;--rot:(-?[\d.]+)deg', src):
+        i, tx, ty, rot = mm.group(1), int(mm.group(2)), int(mm.group(3)), float(mm.group(4))
+        rad = math.radians(abs(rot))
+        hw = (lw * math.cos(rad) + lh * math.sin(rad)) / 2
+        hh = (lw * math.sin(rad) + lh * math.cos(rad)) / 2
+        cx, cy = base_x + tx, base_y + ty
+        out.append((i, cx - hw, cy - hh, cx + hw, cy + hh))
+    return out
 
 problems: list[str] = []
 notes: list[str] = []
@@ -170,6 +200,21 @@ def main() -> int:
         for pat, why in FALLBACK_RULES:
             if re.search(pat, src) is None:
                 problems.append(f"deck 动效兜底：{why}")
+        geo = mail_geometry(src)
+        if geo is None:
+            problems.append("deck 封面信箱：解析不到 .mailbox/.letter 的几何参数（间距写法变了？）")
+        else:
+            for i, l, t, r, b in geo:
+                if (t - MAIL_PAD < MAIL_SAFE["top"] or b + MAIL_PAD > MAIL_SAFE["bottom"]
+                        or l - MAIL_PAD < MAIL_SAFE["left"] or r + MAIL_PAD > MAIL_SAFE["right"]):
+                    problems.append(
+                        f"deck 封面信箱：第 {i} 封信落点 x {l:.0f}–{r:.0f} / y {t:.0f}–{b:.0f}"
+                        f"（含 {MAIL_PAD}px 余量）超出无字安全带 "
+                        f"y {MAIL_SAFE['top']}–{MAIL_SAFE['bottom']}、x {MAIL_SAFE['left']}–{MAIL_SAFE['right']}"
+                        f" → 会盖住封面的字")
+            if re.search(r"@media print\{[\s\S]*?\.mails \.letter\{opacity:1", src) is None:
+                problems.append("deck 封面信箱：打印规则里没有 .mails .letter{opacity:1} → 导出的 PDF 封面会少掉信")
+            notes.append(f"信箱：{len(geo)} 封信落点都在无字安全带内（y {MAIL_SAFE['top']}–{MAIL_SAFE['bottom']}）")
         if not problems:
             notes.append(f"动效：{len(ANIM_RULES) + len(FALLBACK_RULES)} 条不变量通过")
 
