@@ -44,9 +44,12 @@ body{background:#0E0029;color:var(--ink);font-family:var(--sans);overflow:hidden
    注意：不要用「加类/去类」驱动，否则回看已访问过的页时类没有真正变化，动画会丢。 */
 body.noanim .anim{opacity:1!important;transform:none!important;transition:none!important;animation:none!important}
 body.noanim .anim-text{clip-path:none!important;transition:none!important;animation:none!important}
+/* 按 A 关动效时信封盖也不该再走 transition，否则「点一下」不是静态终态而是 0.6s 的过渡 */
+body.noanim .env-flap{transition:none!important}
 body.noanim .slide{transition:none!important}
 @media (prefers-reduced-motion: reduce){.anim{opacity:1!important;transform:none!important;animation:none!important}
   .anim-text{clip-path:none!important;animation:none!important}
+  .env-flap{transition:none!important}
   .slide,.slide.out{transition:none!important}}
 .kicker{font-size:13px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:14px}
 .slide.dark .kicker{color:rgba(229,225,214,.66)}
@@ -89,11 +92,55 @@ figure{margin:0}
 figure img{display:block;width:100%;height:auto;border-radius:10px}
 figcaption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
 .slide.dark figcaption{color:rgba(229,225,214,.6)}
-/* 封面装饰：原封不动的 HugeIcons「mailbox-01」线稿，1:1 比例、原始描边，无动画、不可交互。
-   之前那版（立柱拉到底、换配色、门扇掀开、信飘出）整块撤掉，恢复成图标本来的样子。 */
-.cover-mark{position:absolute;right:102px;top:107px;width:176px;z-index:3;color:var(--bone);opacity:.92}
-.cover-mark svg{display:block;width:100%;height:auto;overflow:visible;
-  fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+/* 封面信封：点信封开口 → 上盖向后掀开 → 信一封封从里面飘出到左侧，随后原处漂浮。
+   落点全部落在 y 100–360 这条带里 —— 上方避开 kicker（底 93），下方避开标题块（顶 371），
+   右边避开信封本体（左沿 950）。所以「信不盖住任何文字」靠的是留白带，不靠运气：
+   改 --tx / --ty 之前先看 build/检查.py 里那几条几何断言。纯 CSS 画的，页面里已经没有 SVG。 */
+.envelope{position:absolute;right:72px;top:168px;width:258px;height:172px;cursor:pointer;z-index:3;outline:none;
+  perspective:900px;perspective-origin:50% 42%}
+.env-body{position:absolute;inset:0;border:1.5px solid var(--bone);border-radius:6px;
+  background:rgba(5,1,15,.72)}
+.envelope:focus-visible .env-body{outline:1px solid rgba(113,38,255,.9);outline-offset:6px}
+/* 上盖＝两条实线拼成的 V，铰链在信封顶边（transform-origin:50% 0，也就是 y=0 那条线）。
+   用两条旋转的横线而不是 clip-path 三角形：clip-path 会把描边一起裁掉，斜边就没有线了。
+   斜边角度 = atan(94 / 126) = 36.5°，线长 = √(126² + 94²) = 157.2px。 */
+.env-flap{position:absolute;left:3px;top:1.5px;width:252px;height:94px;
+  transform-origin:50% 0;transform-style:preserve-3d;
+  transition:transform .6s cubic-bezier(.34,.72,.24,1)}
+.env-flap::before,.env-flap::after{content:"";position:absolute;top:0;width:157.2px;height:1.5px;
+  background:var(--bone);border-radius:1px;transition:background .2s,opacity .45s}
+.env-flap::before{left:0;transform-origin:0 50%;transform:rotate(36.5deg)}
+.env-flap::after{right:0;transform-origin:100% 50%;transform:rotate(-36.5deg)}
+.envelope:hover .env-flap::before,.envelope:hover .env-flap::after,
+.envelope:focus-visible .env-flap::before,.envelope:focus-visible .env-flap::after{background:#B79BFF}
+.envelope.open .env-flap{transform:rotateX(-146deg)}
+/* 掀开后上盖是「背过去」的那一面：压暗一点，翻折的方向才读得出来 */
+.envelope.open .env-flap::before,.envelope.open .env-flap::after{opacity:.6}
+.envelope .cap{position:absolute;left:50%;top:100%;margin-top:11px;transform:translateX(-50%);
+  font-size:11px;letter-spacing:.06em;white-space:nowrap;color:rgba(229,225,214,.72);
+  transition:opacity .3s;text-shadow:0 1px 5px rgba(10,0,32,.85)}
+.letter{position:absolute;left:50%;top:8px;width:96px;height:64px;margin-left:-48px;z-index:3;
+  opacity:0;pointer-events:none;transform-origin:50% 50%;
+  background:#FBF9F4;border:1px solid rgba(28,0,79,.26);border-radius:3px;box-shadow:0 10px 22px rgba(0,0,0,.34)}
+/* 信纸上的四道横线（一道实的 + box-shadow 复制三道），读起来才像「一封信」而不是一张白卡 */
+.letter::before{content:"";position:absolute;left:10px;right:34px;top:14px;height:1px;
+  background:rgba(28,0,79,.30);
+  box-shadow:0 10px 0 rgba(28,0,79,.26),0 20px 0 rgba(28,0,79,.22),0 30px 0 rgba(28,0,79,.17)}
+/* 右上角一枚紫色邮戳 */
+.letter::after{content:"";position:absolute;right:8px;top:8px;width:15px;height:18px;border-radius:2px;
+  border:1px solid rgba(28,0,79,.3);background:repeating-linear-gradient(135deg,rgba(113,38,255,.22) 0 3px,transparent 3px 6px)}
+/* 落点＝发射点＋(--tx,--ty)。发射点在信封开口（1079,208）；
+   目标位置 5 封 zigzag 排开，x 中心 180 / 340 / 500 / 660 / 820，y 中心 172 / 272 / 168 / 288 / 182。 */
+.letter[data-i="0"]{--tx:-899px;--ty:-36px;--rot:-6.5deg;--d:0ms}
+.letter[data-i="1"]{--tx:-739px;--ty:64px;--rot:4.5deg;--d:220ms}
+.letter[data-i="2"]{--tx:-579px;--ty:-40px;--rot:3deg;--d:440ms}
+.letter[data-i="3"]{--tx:-419px;--ty:80px;--rot:-4deg;--d:660ms}
+.letter[data-i="4"]{--tx:-259px;--ty:-26px;--rot:5.5deg;--d:880ms}
+/* 信单独放一层、不跟着信封一起转，落点才能纯算术校验。
+   锚点必须与 .envelope 完全一致（right/top/width），.letter 的 left:50% 才是开口的正中。 */
+.mails{position:absolute;right:72px;top:168px;width:258px;z-index:4;pointer-events:none}
+/* 静态终态：减弱动效、按 A 关动效、打印三种情况下都靠这条显示信件 */
+.envelope.open ~ .mails .letter{opacity:1;transform:translate(var(--tx),var(--ty)) rotate(var(--rot))}
 .credit{font-size:11px;letter-spacing:.03em;color:rgba(229,225,214,.5)}
 table{border-collapse:collapse;width:100%}
 th,td{text-align:left;font-size:13px;line-height:1.6;padding:6px 10px;border-bottom:1px solid var(--line-l);vertical-align:top}
@@ -122,6 +169,10 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   .slide{position:relative;inset:auto;display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;transition:none!important;break-after:page;page-break-after:always}
   .anim{opacity:1!important;transform:none!important;transition:none!important}
   .anim-text{clip-path:none!important;transition:none!important}
+  /* 打印时信封固定为「盖开着、信已飘出」的静态终态：纸上也要看得懂 */
+  .env-flap{transform:rotateX(-146deg)!important;transition:none!important}
+  .mails .letter{opacity:1!important;transform:translate(var(--tx),var(--ty)) rotate(var(--rot))!important}
+  .envelope .cap{display:none!important}
   .slide:last-child{break-after:auto}
   #ui,#pager,#hint,#notes{display:none!important}
 }
@@ -137,15 +188,18 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   <p class="lead" style="margin-top:22px;color:rgba(229,225,214,.86)">第六章《社区的文明观》阅读汇报</p>
   <div class="rule" style="margin-top:26px;max-width:520px"></div>
   <p class="small" style="letter-spacing:.06em">汇报人　辛润林 · 瞿绍卿 · 郭子傅 · 李伟烨　｜　社区心理学　｜　2026 年 11 月</p>
-  <!-- HugeIcons「mailbox-01」，一字未改（viewBox 24×24、stroke-width 1.5、currentColor） -->
-  <div class="cover-mark" aria-hidden="true">
-    <svg viewBox="0 0 24 24">
-      <path d="M6.5 9H8.5" stroke-linejoin="round"/>
-      <path d="M17.5 8V4C17.5 2.89543 18.3954 2 19.5 2" stroke-linejoin="round"/>
-      <path d="M12.5 18L12.5 22"/>
-      <path d="M17.5 5.15889C16.5351 5 15.2591 5 13.375 5H10.625C7.70671 5 6.24757 5 5.14302 5.59039C4.27088 6.05656 3.55656 6.77088 3.09039 7.64302C2.5 8.74757 2.5 10.2067 2.5 13.125C2.5 14.876 2.5 15.7515 2.85424 16.4142C3.13394 16.9375 3.56253 17.3661 4.08581 17.6458C4.74854 18 5.62403 18 7.375 18H16.625C18.376 18 19.2515 18 19.9142 17.6458C20.4375 17.3661 20.8661 16.9375 21.1458 16.4142C21.5 15.7515 21.5 14.876 21.5 13.125C21.5 10.2067 21.5 8.74757 20.9096 7.64302C20.7356 7.31755 20.5271 7.01406 20.2887 6.73725"/>
-      <path d="M12.5006 18V11C12.5006 10.071 12.5006 9.60649 12.439 9.21782C12.1002 7.07836 10.4222 5.40041 8.28276 5.06155C8.2009 5.04859 8.11566 5.03835 8.02344 5.03027"/>
-    </svg>
+  <!-- 纯 CSS 信封：外框 + 两条 36.5° 的斜线拼成上盖。点开口（整只信封都可点）→ 上盖向后掀开 → 信飘出 -->
+  <div class="envelope" role="button" tabindex="0" aria-label="打开信封">
+    <div class="env-body"></div>
+    <div class="env-flap"></div>
+    <div class="cap">点一下信封开口</div>
+  </div>
+  <div class="mails">
+    <div class="letter" data-i="0"></div>
+    <div class="letter" data-i="1"></div>
+    <div class="letter" data-i="2"></div>
+    <div class="letter" data-i="3"></div>
+    <div class="letter" data-i="4"></div>
   </div>
   <aside class="notes" data-time="0:00–0:20">
     <h4>0:00–0:20 ｜ 开场</h4>
@@ -533,6 +587,62 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
     (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
   function clearAnim(el){el.getAnimations().forEach(function(a){a.cancel();});el.style.opacity='';el.style.transform='';el.style.clipPath='';}
 
+  /* ---------- 封面信封 ---------- */
+  var FLY=2500;          // 每封信飘出的时长（用户指定 2.5 秒）
+  var FLOAT_BASE=6200;   // 落定后的漂浮周期
+  function envbox(slide){return slide?slide.querySelector('.envelope'):null;}
+  // 落点写在 CSS 变量里（打印也要用同一组值），这里读出来给 WAAPI 用
+  function restOf(el){
+    var cs=getComputedStyle(el);
+    var n=function(v){return parseFloat(v)||0;};
+    return {tx:n(cs.getPropertyValue('--tx')),ty:n(cs.getPropertyValue('--ty')),rot:n(cs.getPropertyValue('--rot'))};
+  }
+  function restStr(p,extra){
+    return 'translate('+(p.tx+(extra?extra.x:0))+'px,'+(p.ty+(extra?extra.y:0))+'px) rotate('+(p.rot+(extra?extra.rot:0))+'deg)';
+  }
+  function resetEnvelope(slide){
+    var box=envbox(slide); if(!box)return;
+    box.classList.remove('open');
+    [].slice.call(slide.querySelectorAll('.mails .letter')).forEach(function(el){
+      el.getAnimations().forEach(function(a){a.cancel();});
+    });
+    var cap=box.querySelector('.cap'); if(cap){cap.style.opacity='';}
+  }
+  function openEnvelope(slide){
+    var box=envbox(slide); if(!box||box.classList.contains('open'))return;
+    box.classList.add('open');               // 上盖的开合交给 CSS transition，减弱动效/打印共用同一个终态
+    var cap=box.querySelector('.cap'); if(cap){cap.style.opacity='0';}
+    if(animOff())return;
+    [].slice.call(slide.querySelectorAll('.mails .letter')).forEach(function(el,i){
+      var p=restOf(el), d=i*220, end=restStr(p);
+      // 四段：从开口冒出（缩到 .28 藏在盖后）→ 向左偏上的弧线 → 落到静止位（飘，不是直线飞）
+      var fly=el.animate([
+        {transform:'translate(0px,0px) rotate(0deg) scale(.28)',opacity:0,offset:0},
+        {transform:'translate('+(p.tx*.06)+'px,'+(p.ty*.06-18)+'px) rotate('+(p.rot*.4)+'deg) scale(.86)',opacity:1,offset:.22},
+        {transform:'translate('+(p.tx*.62)+'px,'+(p.ty*.62-10)+'px) rotate('+(p.rot*.9)+'deg) scale(1)',opacity:1,offset:.68},
+        {transform:end,opacity:1,offset:1}
+      ],{duration:FLY,delay:d,easing:'cubic-bezier(.25,.6,.3,1)',fill:'both'});
+      fly.onfinish=function(){
+        // 落定后在原处漂浮：起点与落点重合，所以不会跳；dx/dy 按 i 取不同符号，漂浮也有高低错落
+        var dx=(i%2?-1:1)*9, dy=(i%3===0?-11:8), dr=(i%2?1.6:-1.4);
+        el.animate([{transform:restStr(p)},{transform:restStr(p,{x:dx,y:dy,rot:dr})}],
+          {duration:FLOAT_BASE+i*430,iterations:Infinity,direction:'alternate',easing:'ease-in-out'});
+      };
+    });
+  }
+  function closeEnvelope(slide){
+    var box=envbox(slide); if(!box||!box.classList.contains('open'))return;
+    box.classList.remove('open');
+    [].slice.call(slide.querySelectorAll('.mails .letter')).forEach(function(el,i){
+      var p=restOf(el);
+      var back=el.animate([{transform:restStr(p),opacity:1},
+                           {transform:'translate(0px,0px) rotate(0deg) scale(.28)',opacity:0}],
+        {duration:620,delay:(4-i)*60,easing:'ease-in',fill:'both'});
+      back.onfinish=function(){el.getAnimations().forEach(function(a){a.cancel();});};
+    });
+    var cap=box.querySelector('.cap'); if(cap){setTimeout(function(){cap.style.opacity='';},520);}
+  }
+
   // 每次翻页重新播放：不依赖类变化，所以回看同一页照样有动效
   function play(slide){
     var off=animOff();
@@ -554,6 +664,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
     });
   }
   function render(){
+    if(prev!==i)resetEnvelope(slides[prev]);   // 离开封面就把信收回信封，回去还能重演一遍
     slides.forEach(function(s,k){
       s.classList.toggle('on',k===i);
       s.classList.toggle('out',k===prev&&k!==i);  // 上一页留在上层淡出，新页在下面已经铺满
@@ -569,7 +680,13 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   function go(d){ var k=i+d; if(k<0)k=0; if(k>slides.length-1)k=slides.length-1; if(k!==i){i=k;render();} }
   document.addEventListener('keydown',function(e){
     var k=e.key;
-    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();go(1);}
+    // 焦点在信封上时，回车/空格是「开信封」，不是翻页
+    if((k==='Enter'||k===' ')&&document.activeElement&&document.activeElement.classList.contains('envelope')){
+      e.preventDefault();
+      var ev=document.activeElement;
+      if(ev.classList.contains('open')){closeEnvelope(ev.closest('.slide'));}else{openEnvelope(ev.closest('.slide'));}
+    }
+    else if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();go(1);}
     else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();go(-1);}
     else if(k==='Home'){i=0;render();}
     else if(k==='End'){i=slides.length-1;render();}
@@ -585,6 +702,13 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
   document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;});
   document.addEventListener('touchend',function(e){ if(x0===null)return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50){go(dx<0?1:-1);} x0=null;});
   document.addEventListener('click',function(e){
+    var box=e.target.closest('.envelope');
+    if(box){                                   // 点信封只开信封，不翻页
+      if(box.closest('.slide.on')){
+        if(box.classList.contains('open')){closeEnvelope(box.closest('.slide'));}else{openEnvelope(box.closest('.slide'));}
+      }
+      return;
+    }
     if(e.target.closest('#notes'))return;
     go(e.clientX>window.innerWidth*0.5?1:-1);
   });
