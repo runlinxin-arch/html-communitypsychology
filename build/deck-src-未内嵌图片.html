@@ -6,9 +6,10 @@
 <title>文明不是道德问题，是信息问题｜第六章《社区的文明观》阅读汇报</title>
 <style>
 :root{
+  --paper:#F0E8D6; --paper-2:#E0D5B8; --paper-line:#8A7850;   /* 信封：米白纸 / 折面 / 纸上的线 */
   --anim-in:200ms; --anim-out:140ms; --stagger:70ms; --anim-wipe:430ms;
   --indigo:#1C004F; --indigo-soft:#2A0B6B; --bone:#E5E1D6; --bone-soft:#F1EEE5;
-  --ink:#191036; --muted:#6E6880; --accent:#7126FF; --beige:#EDE0C1;
+  --ink:#191036; --muted:#6E6880; --accent:#7126FF;
   --line-l:rgba(25,16,54,.10); --line-d:rgba(229,225,214,.12);
   --card:#FFFFFF; --cardline:rgba(25,16,54,.14);
   --sans:"PingFang SC","Hiragino Sans GB","Heiti SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
@@ -142,8 +143,11 @@ figcaption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
 /* perspective 必须挂在「上盖的直接父元素」上：CSS 的 perspective 只作用于直接子元素，
    隔一层就失效（摆在 .envelope 上时 .env-flap 已经是隔了一层的孙元素）。 */
 .env-shake{position:absolute;inset:0;perspective:900px;perspective-origin:50% 42%}
-.env-body{position:absolute;inset:0;border:1.5px solid var(--beige);border-radius:6px;
-  background:rgba(5,1,15,.72)}
+/* 信封纸：米白（--paper）；纸上的线要比纸深一档（--paper-line），否则米白纸上看不见线。
+   三个变量都在 :root，改之前先看 build/检查.py 里「纸要够浅 / 线要压得住纸 / 折面要分得开」三条断言。 */
+.env-body{position:absolute;inset:0;border:1.5px solid var(--paper-line);border-radius:6px;
+  background:rgba(5,1,15,.72);
+  background:var(--paper)}
 .envelope:focus-visible .env-body{outline:1px solid rgba(113,38,255,.9);outline-offset:6px}
 /* 上盖与内衬是同一条 V：外盖亮、内衬暗，两条线坐标完全重合。
    合上时只看得见外盖；掀开后外盖翻上去，内衬留着 —— 信封「里面」才不是一块空白。
@@ -151,20 +155,21 @@ figcaption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
    斜边角度 = atan(94 / 126) = 36.5°，线长 = √(126² + 94²) = 157.2px。 */
 .env-flap,.env-inner{position:absolute;left:3px;top:1.5px;width:252px;height:94px}
 .env-flap::before,.env-flap::after,.env-inner::before,.env-inner::after{content:"";position:absolute;top:0;
-  width:157.2px;height:1.5px;background:var(--beige);border-radius:1px;z-index:2;transition:background .2s,opacity .45s}
+  width:157.2px;height:1.5px;background:var(--paper-line);border-radius:1px;z-index:2;transition:background .2s,opacity .45s}
 /* 上盖的填色块：两条斜边是描边、这块是「纸」。clip-path 只裁这一个子元素，
    所以描边不会被裁掉（裁在 .env-flap 自己身上时斜边就没了）。
    三角形顶点与两条斜线的交点重合（0,0)-(100%,0)-(50%,100%)，边长 126/94 ↔ 36.5°。
-   填色在合上时压在信封本体上（同色系、几乎看不出来），掀开后才露在深色背景上。 */
+   纸色用 --paper-2（比正面 --paper 暗一档）：合上时是信封正面的盖面，掀开后是折过去那一面，
+   两种状态都读得出一条折痕 —— 同一片纸翻过去两面同色，不能只在掀开时才「变色」。 */
 .env-flap-face{position:absolute;inset:0;z-index:1;clip-path:polygon(0 0,100% 0,50% 100%);
-  background:linear-gradient(180deg,rgba(30,13,68,.94),rgba(68,34,124,.92))}
+  background:var(--paper-2)}
 .env-flap::before,.env-inner::before{left:0;transform-origin:0 50%;transform:rotate(36.5deg)}
 .env-flap::after,.env-inner::after{right:0;transform-origin:100% 50%;transform:rotate(-36.5deg)}
 .env-inner::before,.env-inner::after{opacity:.4}
 .env-flap{transform-origin:50% 0;transform-style:preserve-3d;
   transition:transform .6s cubic-bezier(.34,.72,.24,1)}
 .envelope:hover .env-flap::before,.envelope:hover .env-flap::after,
-.envelope:focus-visible .env-flap::before,.envelope:focus-visible .env-flap::after{background:#C6A5FF}
+.envelope:focus-visible .env-flap::before,.envelope:focus-visible .env-flap::after{background:var(--accent)}
 .envelope.lid .env-flap{transform:rotateX(-146deg)}
 /* 掀开后上盖是「背过去」的那一面：压暗一点，翻折的方向才读得出来 */
 .envelope.lid .env-flap::before,.envelope.lid .env-flap::after{opacity:.55}

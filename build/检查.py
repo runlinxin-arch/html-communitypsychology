@@ -108,7 +108,9 @@ LETTER_COUNT = 5     # 用户要求「大约 4、5 封」
 FLY_MS = 2500        # 用户指定：每封信飘出 2.5 秒
 MIN_DY_SPREAD = 80   # 5 封信的纵向跨度下限，低于这个数就不叫「高低错落」
 ENV_TOP_MIN = 190    # 信封顶边下移后的下限（用户要求「整体下移一点」）
-LEFT_BEIGE = "#EDE0C1"   # 信封的米色
+PAPER = "#F0E8D6"        # 信封的纸（米白）：用户要求「整体信封改成米白色」
+PAPER_2 = "#E0D5B8"      # 折过去那一面的纸（比正面暗一档，折痕才读得出来）
+PAPER_LINE = "#8A7850"   # 纸上的线：米白纸配米色线会看不见，必须是深一档的暖褐
 
 
 def mail_geometry(src: str):
@@ -365,12 +367,35 @@ def main() -> int:
         if re.search(r"\.envelope\.lid \.env-flap::before[^{]*\{opacity:", src) is None:
             problems.append("deck 封面信封：上盖掀开后没有压暗 → 翻折方向读不出来")
         # 米色：外框、上盖、内衬三条线必须走同一个变量
-        if f"--beige:{LEFT_BEIGE}" not in src:
-            problems.append(f"deck 封面信封：--beige 不是 {LEFT_BEIGE}（用户要求信封改成米色）")
-        if re.search(r"\.env-body\{[^}]*border:1\.5px solid var\(--beige\)", src) is None:
-            problems.append("deck 封面信封：外框描边没有用 --beige")
-        if re.search(r"\.env-flap::before,\.env-flap::after,\.env-inner::before,\.env-inner::after\{[^}]*background:var\(--beige\)", src) is None:
-            problems.append("deck 封面信封：上盖/内衬的线没有用 --beige")
+        # 米白纸信封：纸条与纸面都得走变量，而且线必须比纸深（不然线在白纸上看不见）
+        paper = {n: re.search(r"--" + n + r":(#[0-9A-Fa-f]{6})", src) for n in ("paper", "paper-2", "paper-line")}
+        if any(v is None for v in paper.values()):
+            problems.append("deck 封面信封：--paper / --paper-2 / --paper-line 有缺 → 信封的纸色没接上变量")
+        else:
+            def lum(h):
+                # WCAG 相对亮度（要先做 sRGB 线性化；直接用加权平均会把明暗差算小一半）
+                lin = lambda c: c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+                r, g, b = (int(h[1:3], 16) / 255, int(h[3:5], 16) / 255, int(h[5:7], 16) / 255)
+                return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+            L = {n: lum(v.group(1)) for n, v in paper.items()}
+            cr = lambda a, b: (max(a, b) + 0.05) / (min(a, b) + 0.05)
+            if L["paper"] < 0.75:
+                problems.append(f"deck 封面信封：纸色 {paper['paper'].group(1)} 不够浅（亮度 {L['paper']:.2f}）"
+                                f" → 用户要求的是米白，不是深色")
+            elif cr(L["paper"], L["paper-line"]) < 3.0:
+                problems.append(f"deck 封面信封：纸与线的对比只有 {cr(L['paper'], L['paper-line']):.1f}:1"
+                                f" → 米白纸上看不清线（线要更深一档）")
+            if cr(L["paper"], L["paper-2"]) < 1.15:
+                problems.append(f"deck 封面信封：折过去那一面与正面几乎同色"
+                                f"（对比 {cr(L['paper'], L['paper-2']):.2f}:1）→ 折痕读不出来")
+        if re.search(r"\.env-body\{[^}]*border:1\.5px solid var\(--paper-line\)", src) is None:
+            problems.append("deck 封面信封：外框描边没有用 --paper-line")
+        if re.search(r"\.env-body\{[^}]*background:var\(--paper\)", src) is None:
+            problems.append("deck 封面信封：信封本体没有铺 --paper（纸色没上）")
+        if re.search(r"\.env-flap::before,\.env-flap::after,\.env-inner::before,\.env-inner::after\{[^}]*background:var\(--paper-line\)", src) is None:
+            problems.append("deck 封面信封：上盖/内衬的线没有用 --paper-line")
+        if re.search(r"\.env-flap-face\{[^}]*background:var\(--paper-2\)", src) is None:
+            problems.append("deck 封面信封：上盖的填色块没有用 --paper-2（折过去那一面得比正面暗一档）")
         # 内衬：合上时隐在外盖底下，掀开后留在信封里 —— 不然打开的信封里是一块空白
         if re.search(r"\.env-flap,\.env-inner\{", src) is None:
             problems.append("deck 封面信封：内衬没有和上盖共用同一套坐标 → 两条 V 不会重合")
@@ -392,7 +417,7 @@ def main() -> int:
                 problems.append(f"deck 封面信封：填色块的三角形是 {face.group(1)}"
                                 f"（应为 0 0,100% 0,50% 100%）→ 跟两条 36.5° 斜线的交点对不上，边会露出来")
             alphas = [float(a.split(",")[3]) for a in re.findall(r"rgba\(([^)]*)\)", face.group(2))
-                      if len(a.split(",")) == 4]
+                      if len(a.split(",")) == 4] if "var(" not in face.group(2) else []
             if alphas and min(alphas) < 0.8:
                 problems.append(f"deck 封面信封：填色块的 alpha 只有 {min(alphas):g}（应 ≥ 0.8）"
                                 f" → 会透出底下的网格，看着还是个空壳")
