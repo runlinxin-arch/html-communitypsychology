@@ -137,6 +137,44 @@ def mail_geometry(src: str):
     return out
 
 
+def keyframe_body(src: str, name: str):
+    """取出 @keyframes name{...} 的函数体：里面的每条 stop 也带花括号，得按配平来截。"""
+    m = re.search(r"@keyframes\s+" + re.escape(name) + r"\s*\{", src)
+    if not m:
+        return None
+    depth, i = 1, m.end()
+    while i < len(src) and depth:
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+        i += 1
+    return src[m.end():i - 1]
+
+
+def kf_stops(body: str):
+    """关键帧体 → [(百分比, 值)]；认 from/to 与 '30%,100%{...}' 这种合写。"""
+    if body is None:
+        return None
+    body = re.sub(r"\bfrom\s*\{", "0%{", body)
+    body = re.sub(r"\bto\s*\{", "100%{", body)
+    out = []
+    for m in re.finditer(r"((?:[\d.]+%\s*,?\s*)+)\{([^}]*)\}", body):
+        for pct in re.findall(r"([\d.]+)%", m.group(1)):
+            out.append((float(pct), m.group(2)))
+    return out
+
+
+def kf_amplitude(values, prop: str) -> float:
+    """一组值里 prop(...) 的最大绝对值（rotate 看角度，translate 看位移）。"""
+    amp = 0.0
+    for v in values:
+        m = re.search(prop + r"\(([^)]*)\)", v)
+        if m:
+            amp = max(amp, max((abs(float(x)) for x in re.findall(r"-?[\d.]+", m.group(1))), default=0.0))
+    return amp
+
+
 def strip_comments(src: str) -> str:
     """去掉 HTML 与 CSS 注释再扫「残留代码」——注释里提到类名不算残留。"""
     src = re.sub(r"<!--[\s\S]*?-->", "", src)
@@ -369,6 +407,44 @@ def main() -> int:
                           "打印时停掉摇晃")):
             if re.search(pat, src) is None:
                 problems.append(f"deck 封面信封：缺少{why}的兜底")
+        # 节拍：每 3 秒摇一下，摇完必须真的停下 —— 这是用户从「一直震动」改过来的，别改回去
+        for name, elem, prop, amp_min, num in (("env-sway", "sway", "rotate", 0.8, "角度"),
+                                               ("env-buzz", "shake", "translate", 0.3, "位移")):
+            anim = re.search(r"\.envelope:not\(\.used\) \.env-" + elem + r"\{animation:" + name + r" ([\d.]+)s",
+                             src)
+            stops = kf_stops(keyframe_body(src, name))
+            if anim is None or not stops:
+                problems.append(f"deck 封面信封：{name} 的动画声明或关键帧读不出来 → 节拍改动要同步 build/检查.py")
+                continue
+            period = float(anim.group(1))
+            if abs(period - 3.0) > 1e-6:
+                problems.append(f"deck 封面信封：{name} 的周期是 {period}s（用户要求每隔三秒摇一下）")
+            still = {"rotate": r"rotate\(\s*0deg\s*\)", "translate": r"translate\(\s*0(?:px)?\s*,\s*0(?:px)?\s*\)"}[prop]
+            moving = [p for p, v in stops if not re.search(still, v)]
+            if not moving:
+                problems.append(f"deck 封面信封：{name} 的关键帧里没有真正的{'旋转' if prop == 'rotate' else '位移'}")
+                continue
+            if max(moving) > 35:
+                problems.append(f"deck 封面信封：{name} 一直摇到周期的 {max(moving):.0f}%"
+                                f" → 等于一直在摇，没有「每隔三秒摇一下」的停歇（摇晃段应 ≤ 35%）")
+            if not any(p >= 99 and re.search(still, v) for p, v in stops):
+                problems.append(f"deck 封面信封：{name} 的关键帧没有在周期末尾回到静止 → 会一直摇")
+            # 摇完得「当场」回零：最后一条非零 stop 的下一站就要是中性值。
+            # 少了这一条，24%→100% 中间会变成一路慢慢转回来，看着仍然像一直在动。
+            marks = max(moving)
+            nxt = sorted(p for p, _ in stops if p > marks)
+            nxt_val = next((v for p, v in stops if p == nxt[0]), "") if nxt else ""
+            if not nxt or not re.search(still, nxt_val) or nxt[0] - marks > 10:
+                problems.append(f"deck 封面信封：{name} 摇完之后没有马上回零"
+                                f"（最后一条非零在 {marks:.0f}%，下一条停在 {nxt[0]:.0f}%）"
+                                f" → 中间那段会变成慢慢转回来，仍然像一直动"
+                                if nxt else
+                                f"deck 封面信封：{name} 最后一条非零 stop 之后没有回零的关键帧")
+            amp = kf_amplitude([v for _, v in stops], prop)
+            if amp < amp_min:
+                problems.append(f"deck 封面信封：{name} 的{num}只有 {amp}({'deg' if prop == 'rotate' else 'px'})"
+                                f"，小于 {amp_min} → 看不见在摇")
+
         # 时序：先完全掀盖 → 再放信；先全部收信 → 再合盖
         door = re.search(r"var DOOR_MS=(\d+);", src)
         if door is None or int(door.group(1)) < 600:
