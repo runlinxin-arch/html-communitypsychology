@@ -380,6 +380,24 @@ def main() -> int:
         elif float(dim.group(1)) >= 0.6:
             problems.append(f"deck 封面信封：内衬的 opacity={dim.group(1)}（应 < 0.6）"
                             f" → 合上时会从外盖下面透出来")
+        # 上盖的填色块：掀开后不能是个空心三角形（用户要求「折角打开后补色块」）
+        if re.search(r'<div class="env-flap"><div class="env-flap-face"></div></div>', cover) is None:
+            problems.append("deck 封面信封：上盖里没有填色块（.env-flap-face 要当 .env-flap 的子元素，才会跟着一起翻）")
+        face = re.search(r"\.env-flap-face\{[^}]*clip-path:polygon\(([^)]*)\)[^}]*background:([^;}]+)", src)
+        if face is None:
+            problems.append("deck 封面信封：读不到 .env-flap-face 的三角形或填色 → 掀开后又是个空心的")
+        else:
+            tri = [v.strip() for v in face.group(1).split(",")]
+            if tri != ["0 0", "100% 0", "50% 100%"]:
+                problems.append(f"deck 封面信封：填色块的三角形是 {face.group(1)}"
+                                f"（应为 0 0,100% 0,50% 100%）→ 跟两条 36.5° 斜线的交点对不上，边会露出来")
+            alphas = [float(a.split(",")[3]) for a in re.findall(r"rgba\(([^)]*)\)", face.group(2))
+                      if len(a.split(",")) == 4]
+            if alphas and min(alphas) < 0.8:
+                problems.append(f"deck 封面信封：填色块的 alpha 只有 {min(alphas):g}（应 ≥ 0.8）"
+                                f" → 会透出底下的网格，看着还是个空壳")
+        if re.search(r"\.env-flap::before,\.env-flap::after,\.env-inner::before,\.env-inner::after\{[^}]*z-index:2", src) is None:
+            problems.append("deck 封面信封：上盖的描边没有压过填色块（应 z-index:2）→ 两条斜边会被填色盖掉")
         inn = re.search(r'class="env-inner"', cover)
         fl = re.search(r'class="env-flap"', cover)
         if inn and fl and inn.start() > fl.start():

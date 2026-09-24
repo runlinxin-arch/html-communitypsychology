@@ -151,7 +151,13 @@ figcaption{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
    斜边角度 = atan(94 / 126) = 36.5°，线长 = √(126² + 94²) = 157.2px。 */
 .env-flap,.env-inner{position:absolute;left:3px;top:1.5px;width:252px;height:94px}
 .env-flap::before,.env-flap::after,.env-inner::before,.env-inner::after{content:"";position:absolute;top:0;
-  width:157.2px;height:1.5px;background:var(--beige);border-radius:1px;transition:background .2s,opacity .45s}
+  width:157.2px;height:1.5px;background:var(--beige);border-radius:1px;z-index:2;transition:background .2s,opacity .45s}
+/* 上盖的填色块：两条斜边是描边、这块是「纸」。clip-path 只裁这一个子元素，
+   所以描边不会被裁掉（裁在 .env-flap 自己身上时斜边就没了）。
+   三角形顶点与两条斜线的交点重合（0,0)-(100%,0)-(50%,100%)，边长 126/94 ↔ 36.5°。
+   填色在合上时压在信封本体上（同色系、几乎看不出来），掀开后才露在深色背景上。 */
+.env-flap-face{position:absolute;inset:0;z-index:1;clip-path:polygon(0 0,100% 0,50% 100%);
+  background:linear-gradient(180deg,rgba(30,13,68,.94),rgba(68,34,124,.92))}
 .env-flap::before,.env-inner::before{left:0;transform-origin:0 50%;transform:rotate(36.5deg)}
 .env-flap::after,.env-inner::after{right:0;transform-origin:100% 50%;transform:rotate(-36.5deg)}
 .env-inner::before,.env-inner::after{opacity:.4}
@@ -240,7 +246,7 @@ a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(113,38,255,.45
       <div class="env-shake">
         <div class="env-body"></div>
         <div class="env-inner"></div>
-        <div class="env-flap"></div>
+        <div class="env-flap"><div class="env-flap-face"></div></div>
       </div>
     </div>
   </div>
