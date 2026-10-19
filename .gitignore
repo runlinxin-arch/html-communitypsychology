@@ -1,11 +1,5 @@
-# macOS
 .DS_Store
-
-# 依赖与构建产物（各子工程另有自己的 .gitignore）
 node_modules/
-dist/
-dist-ssr/
-.heroui-docs/
-
-# 日志与临时文件
 *.log
+qa/chrome.log
+qa/numbers-dom.html

@@ -1,0 +1,200 @@
+[
+  {
+    "id": "eca",
+    "branch": "01",
+    "lines": 4,
+    "source": "教材《精神疾病的流行病学估计》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "ncs",
+    "branch": "01",
+    "lines": 4,
+    "source": "教材《精神疾病的流行病学估计》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "ncsr",
+    "branch": "01",
+    "lines": 4,
+    "source": "教材《精神疾病的流行病学估计》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "community",
+    "branch": "01",
+    "lines": 4,
+    "source": "教材《精神疾病的流行病学估计》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "medical",
+    "branch": "02",
+    "lines": 4,
+    "source": "教材《精神健康和精神障碍的理论模型》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "psychoanalysis",
+    "branch": "02",
+    "lines": 4,
+    "source": "教材《精神健康和精神障碍的理论模型》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "behaviorism",
+    "branch": "02",
+    "lines": 4,
+    "source": "教材《精神健康和精神障碍的理论模型》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "humanism",
+    "branch": "02",
+    "lines": 4,
+    "source": "教材《精神健康和精神障碍的理论模型》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "limits",
+    "branch": "02",
+    "lines": 4,
+    "source": "教材《精神健康和精神障碍的理论模型》",
+    "side": "right",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "premodern",
+    "branch": "03",
+    "lines": 4,
+    "source": "教材《精神健康护理简史》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "asylum",
+    "branch": "03",
+    "lines": 4,
+    "source": "教材《精神健康护理简史》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "medicalization",
+    "branch": "03",
+    "lines": 4,
+    "source": "教材《精神健康护理简史》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "deinst",
+    "branch": "03",
+    "lines": 4,
+    "source": "教材《去机构化》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "transinst",
+    "branch": "03",
+    "lines": 4,
+    "source": "教材《机构化的早期选择》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "programs",
+    "branch": "03",
+    "lines": 4,
+    "source": "教材《针对精神障碍个体的示范项目》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "cost",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《战斗还在继续：路在何方》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "prevention",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《战斗还在继续：路在何方》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "stigma",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《战斗还在继续：路在何方》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "fragmentation",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《战斗还在继续：路在何方》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "mindbody",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《战斗还在继续：路在何方》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "culture",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《战斗还在继续：路在何方》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  },
+  {
+    "id": "whotreats",
+    "branch": "04",
+    "lines": 4,
+    "source": "教材《案例 6-1》",
+    "side": "left",
+    "overlap": false,
+    "inside": true
+  }
+]

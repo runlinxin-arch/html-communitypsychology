@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="zh-CN" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>《社区心理学》阅读汇报 · 第六章 精神健康系统</title>
+<style>
+  :root{
+    --paper:#F4EFE4; --paper-hi:#F7F2E8; --paper-lo:#F0E9DA;
+    --ink:#17171A; --ink-2:#3A3833; --muted:#8A8477;
+    --indigo:#2B3A67; --indigo-light:#7E8BB5;
+    --dark:#16171A; --dark-ink:#EFE9DB; --dark-muted:#8C8477;
+    --hair:#C6BCA6; --dash:#8E836C; --dark-rule:#3A3B40;
+    --map-bg:#FBFAF7; --map-fill:#FFFFFF; --map-border:#D9D9D9; --map-line:#CFCFCF;
+    --map-ink:#1C1C1C; --map-muted:#8C8C8C; --map-active:#F3F5FA;
+    --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif SC","SimSun","宋体",serif;
+    --sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --mono:"SF Mono","Menlo","Consolas",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:#0B0C0E;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  [hidden]{display:none!important}
+  #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  #stage{position:relative;width:1280px;height:720px;flex:none;transform:scale(1);transform-origin:center center}
+
+  .slide{position:absolute;inset:0;overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease, visibility 0s linear .2s}
+  .slide.is-active{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .2s ease;z-index:2}
+  .slide.is-leaving{opacity:0;visibility:visible;pointer-events:none;transition:opacity .12s ease;z-index:1}
+  .theme-paper{background:linear-gradient(180deg,var(--paper-hi) 0%,var(--paper) 42%,var(--paper-lo) 100%);color:var(--ink)}
+  .theme-dark{background:radial-gradient(120% 120% at 18% 0%,#1B1C20 0%,#16171A 58%,#121316 100%);color:var(--dark-ink)}
+  .theme-map{background:var(--map-bg);color:var(--map-ink)}
+
+  .spine{position:absolute;left:0;top:0;bottom:0;width:96px;border-right:1px solid #2A2B30;pointer-events:none}
+  .spine i{position:absolute;left:36px;width:6px;height:6px;background:var(--indigo)}
+  .spine i:nth-child(1){top:180px}
+  .spine i:nth-child(2){top:320px}
+  .spine i:nth-child(3){top:460px}
+
+  .head{position:absolute;left:72px;right:72px;top:64px}
+  .head-row{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;letter-spacing:.18em;color:#6F6A5E}
+  .head-left{display:flex;gap:14px;align-items:baseline}
+  .head-no{font-family:var(--mono);letter-spacing:.08em;color:var(--indigo)}
+  .head-right{letter-spacing:.14em;color:var(--muted)}
+  .rule{height:1px;background:var(--hair);margin-top:14px;opacity:.85}
+  .theme-dark .head-row{color:var(--dark-muted)}
+  .theme-dark .head-no{color:var(--indigo-light)}
+  .theme-dark .rule{background:var(--dark-rule)}
+  .theme-map .head-row{color:#666}
+  .theme-map .head-no{color:var(--indigo)}
+  .theme-map .rule{background:#E2E2E2}
+  .head--spine{left:120px}
+
+  .eyebrow{font-size:12px;letter-spacing:.32em;color:var(--indigo);font-weight:600;line-height:1}
+  .theme-dark .eyebrow{color:var(--indigo-light)}
+  .source{font-size:12px;letter-spacing:.06em;color:var(--muted);margin-top:24px}
+  .theme-dark .source{color:#6E675C}
+
+  .pagenum{position:absolute;right:72px;bottom:24px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted)}
+  .theme-dark .pagenum{color:#6E675C}
+  .marks{position:absolute;left:72px;bottom:24px;font-size:11px;letter-spacing:.16em;color:var(--muted)}
+  .theme-dark .marks{color:#6E675C}
+
+  .anim{opacity:1}
+  .num-anim{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .js .anim{opacity:0}
+  .no-js .anim, body.no-motion .anim{opacity:1!important;transform:none!important}
+
+  /* ---------- P1 ---------- */
+  .title-block{position:absolute;left:0;right:0;top:172px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 112px}
+  .title-block h1{font-family:var(--serif);font-weight:600;font-size:68px;line-height:1.3;letter-spacing:.02em;white-space:nowrap}
+  .title-block h1 .accent{color:var(--indigo-light)}
+  .title-sub{margin-top:30px;font-size:26px;letter-spacing:.18em;color:#9A9387;text-indent:.18em;white-space:nowrap}
+  .title-rule{width:480px;height:1px;background:#3A3B40;margin-top:30px}
+  .title-credits{display:flex;justify-content:center;align-items:baseline;gap:44px;font-size:15px;line-height:1.9;margin-top:72px;white-space:nowrap;letter-spacing:.02em}
+  .title-credits .lbl{color:#8C8477}
+  .title-credits b{font-weight:400;color:var(--dark-ink)}
+
+  /* ---------- P2 ---------- */
+  .map-head{top:64px}
+  .eyebrow-row{position:absolute;left:72px;right:72px;top:112px;display:flex;justify-content:space-between;align-items:baseline;font-size:11px;letter-spacing:.3em;color:var(--indigo);font-weight:600}
+  .eyebrow-row .right{letter-spacing:.12em;color:var(--map-muted);font-weight:400}
+  .map-viewport{position:absolute;left:72px;right:72px;top:150px;height:510px;overflow:hidden}
+  .map-canvas{position:relative;width:1136px;padding-bottom:20px}
+  .wires{position:absolute;left:0;top:0;z-index:0;pointer-events:none}
+  .map-root{position:relative;z-index:2;width:240px;height:52px;margin:0 auto 76px;background:var(--map-fill);border:2px solid var(--map-border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .map-root .rk{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--map-muted);line-height:1}
+  .map-root .rt{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.2;margin-top:3px}
+  .map-columns{position:relative;z-index:1;display:flex;gap:32px;align-items:flex-start}
+  .map-col{width:260px;display:flex;flex-direction:column;align-items:center}
+  .map-branch{position:relative;z-index:2;width:200px;height:48px;background:var(--map-fill);border:1.5px solid var(--map-border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .map-branch .num{position:absolute;left:10px;top:6px;font-family:var(--mono);font-size:9px;color:#A0A0A0;letter-spacing:.08em}
+  .map-branch .bt{font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.2}
+  .map-branch .bs{font-size:9px;letter-spacing:.1em;color:var(--map-muted);margin-top:2px}
+  .chain{position:relative;margin-top:16px;display:flex;flex-direction:column;align-items:center;width:200px}
+  .chain::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1.5px;background:var(--map-line);z-index:0;transform:translateX(-.75px)}
+  .node{position:relative;z-index:1;width:200px;margin-bottom:8px;display:flex;justify-content:center}
+  .node:last-child{margin-bottom:0}
+  .node.gap-before{margin-bottom:0}
+  .leaf{width:200px;height:32px;background:var(--map-fill);border:1.3px solid var(--map-border);border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;color:#333;line-height:1.15;padding:0 6px;transition:border-color .12s ease,background-color .12s ease,color .12s ease}
+  .leaf-stage{font-family:var(--serif);font-size:14px;font-weight:600;border-width:1.5px;color:#111}
+  .leaf:hover{border-color:#B9C2D8}
+  .leaf.is-active{border-color:var(--indigo);background:var(--map-active);color:var(--indigo)}
+  .leaf:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+  .gap{position:relative;z-index:1;width:200px;height:12px;flex:none}
+  .gap::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1.5px dashed var(--map-line);transform:translateX(-.75px)}
+  .gap span{position:absolute;left:calc(50% + 10px);top:50%;transform:translateY(-50%);font-size:9px;line-height:1;letter-spacing:.08em;color:var(--map-muted);white-space:nowrap}
+  .map-card{position:absolute;right:72px;bottom:90px;width:380px;padding:18px 20px 16px;background:var(--map-fill);border:1.5px solid #D6D6D6;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08);z-index:6;color:var(--map-ink)}
+    .map-card-close{position:absolute;right:12px;top:8px;width:28px;height:28px;font-size:18px;line-height:1;color:#A0A0A0}
+  .map-card-kicker{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--map-muted)}
+  .map-card-title{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.45;margin-top:8px;padding-right:20px}
+  .map-card-body{margin-top:10px;font-size:12px;line-height:1.95;color:#333}
+  .map-line{display:block;white-space:nowrap}
+  .map-card-src{margin-top:12px;padding-top:10px;border-top:1px solid #EEE;font-size:9.5px;letter-spacing:.04em;color:var(--map-muted)}
+
+  /* ---------- P3 ---------- */
+  .opening-quote{position:absolute;left:120px;top:150px;max-width:520px;font-family:var(--serif);font-size:15px;line-height:1.95;color:#9A9387}
+  .opening-quote .quote-src{margin-top:10px;font-size:12px;letter-spacing:.06em;color:#6E675C}
+  .opening-title{position:absolute;left:120px;top:300px;font-family:var(--serif);font-size:76px;font-weight:600;line-height:1.28;letter-spacing:.01em;white-space:nowrap}
+  .opening-title em{font-style:normal;color:var(--indigo-light)}
+  .opening-sub{position:absolute;left:120px;top:520px;font-size:16px;letter-spacing:.08em;color:#8C8477}
+
+  /* ---------- P4/P6 ---------- */
+  .content{position:absolute;left:72px;right:72px;top:150px;bottom:140px}
+  .content-single{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;max-width:900px}
+  .judge{font-family:var(--serif);font-weight:600;line-height:1.42;letter-spacing:.01em}
+  .judge-single{font-size:50px;max-width:900px}
+  .evidence{font-size:17px;line-height:2;color:var(--ink-2);max-width:660px;margin-top:30px}
+
+  /* ---------- P5/P7 ---------- */
+  .content-card{display:flex;align-items:center;gap:56px}
+  .left-col{width:560px;flex:none}
+  .judge-card{font-size:42px;line-height:1.42}
+  .evidence-copy{font-size:16px;line-height:1.95;max-width:560px;margin-top:24px}
+  .evidence--wide{max-width:760px}
+  .archive-card{width:490px;flex:none;border:1px dashed var(--dash);padding:26px 28px 24px;position:relative;background:rgba(255,255,255,.16)}
+  .card-no{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--indigo)}
+  .card-mark{position:absolute;right:24px;top:24px;width:7px;height:7px;background:var(--indigo)}
+  .card-name{font-family:var(--serif);font-size:34px;font-weight:600;line-height:1.3;margin-top:14px;letter-spacing:.02em}
+  .card-en{font-size:12px;letter-spacing:.14em;color:var(--muted);margin-top:8px}
+  .card-divider{height:1px;background:var(--hair);margin:18px 0 16px}
+  .card-body{font-size:13px;line-height:1.9;color:var(--ink-2)}
+  .card-quote{font-family:var(--serif);font-size:16px;line-height:1.95;color:var(--indigo);margin-top:14px}
+  .card-note{font-size:11px;letter-spacing:.04em;color:var(--muted);margin-top:8px}
+  .card-stat{display:flex;align-items:baseline;gap:8px;margin:6px 0 10px}
+  .card-stat .big{font-family:var(--serif);font-size:56px;font-weight:600;color:var(--indigo);line-height:1}
+  .card-stat .unit{font-family:var(--serif);font-size:18px;color:var(--ink-2)}
+  .card-stat .stat-note{font-size:11px;color:var(--muted);margin-left:8px;line-height:1.5}
+
+  /* ---------- P8/P9 ---------- */
+  .content-evidence{display:flex;align-items:center;gap:56px}
+  .content-evidence .left-col{width:470px}
+  .judge-evidence{font-size:46px;line-height:1.42}
+  .explain{font-size:14px;line-height:1.95;color:var(--ink-2);margin-top:24px;max-width:470px}
+  .evidence-card{width:520px;flex:none;border:1px dashed var(--dash);padding:24px 26px 20px;position:relative;background:rgba(255,255,255,.16)}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:14px}
+  .stat{padding:14px 14px 16px 0;border-bottom:1px solid #E0D8C6}
+  .stat:nth-child(2n){padding-left:14px;border-left:1px solid #E0D8C6}
+  .stat .num{font-family:var(--serif);font-size:46px;font-weight:600;line-height:1;color:var(--ink)}
+  .stat .unit{font-family:var(--serif);font-size:14px;color:#6F6A5E;margin-left:3px}
+  .stat-label{font-size:12px;line-height:1.5;color:var(--ink-2);margin-top:7px}
+  .stat-stack{margin-top:8px}
+  .stat-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;padding:10px 0;border-bottom:1px solid #E0D8C6}
+  .stat-row .num{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1;color:var(--ink)}
+  .stat-row .unit{font-family:var(--serif);font-size:13px;color:#6F6A5E}
+  .stat-row .stat-label{font-size:12px;color:var(--ink-2);margin-top:0;margin-left:6px}
+  .stat-caveat{font-size:10px;letter-spacing:.04em;color:var(--muted);margin-top:8px}
+  .compare-row{margin-top:14px}
+  .compare-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .compare-num{font-family:var(--serif);font-size:44px;font-weight:600;color:var(--indigo);line-height:1}
+  .bar{height:4px;background:#E8E1D2;margin-top:6px;position:relative}
+  .bar i{display:block;height:4px;background:var(--indigo);width:100%;transform:scaleX(var(--bar,0));transform-origin:left center}
+  .stat-line{display:flex;align-items:baseline;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #E0D8C6}
+  .stat-line .num{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1;color:var(--ink)}
+  .stat-line .unit{font-family:var(--serif);font-size:14px;color:#6F6A5E}
+  .stat-line .stat-label{font-size:12px;color:var(--ink-2);margin-top:0;margin-left:6px}
+  .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;border-top:1px solid #E0D8C6;padding-top:12px}
+  .mini-num{display:block;font-family:var(--serif);font-size:28px;font-weight:600;color:var(--indigo);line-height:1.1}
+  .mini-label{display:block;font-size:10.5px;line-height:1.5;color:var(--muted);margin-top:3px}
+
+  /* ---------- P10 ---------- */
+  .content-conclusion{display:flex;flex-direction:column;justify-content:center;max-width:1136px}
+  .concl-title{font-family:var(--serif);font-size:64px;font-weight:600;line-height:1.3;letter-spacing:.01em;margin-top:14px}
+  .concl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:36px;border-top:1px solid var(--dark-rule);padding-top:20px}
+  .concl-col .col-no{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--indigo-light)}
+  .concl-col h3{font-family:var(--serif);font-size:18px;font-weight:600;line-height:1.6;color:var(--dark-ink);margin-top:10px}
+  .concl-col p{font-size:14px;line-height:1.9;color:#B8B0A2;margin-top:12px}
+  .content-conclusion .source{color:#6E675C;margin-top:24px}
+
+  /* ---------- P11 ---------- */
+  .content-sources{display:flex;gap:56px;align-items:flex-start;padding-bottom:40px}
+  .sources-left{width:420px;flex:none}
+  .sources-right{width:640px;flex:none}
+  .index-list{list-style:none;margin-top:16px}
+  .index-list li{display:grid;grid-template-columns:28px 96px 16px 1fr;align-items:baseline;gap:6px;padding:9px 0;border-bottom:1px solid rgba(198,188,166,.45);font-size:13px}
+  .idx{font-family:var(--mono);font-size:10px;color:var(--indigo);letter-spacing:.06em}
+  .idx-name{font-family:var(--serif);font-size:15px;font-weight:600;white-space:nowrap}
+  .idx-arrow{color:var(--muted);font-size:12px}
+  .idx-src{font-size:12px;color:var(--ink-2);line-height:1.5}
+  .cite-list{list-style:none;margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+  .cite-list li{font-size:11.5px;line-height:1.65;color:var(--ink-2);padding-left:12px;position:relative}
+  .cite-list li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;background:var(--indigo)}
+  .cite-author{font-weight:600;color:var(--ink)}
+  .cite-year{font-family:var(--mono);font-size:10px;color:var(--indigo);margin:0 3px}
+  .cite-title{color:var(--ink-2)}
+  .source-note{font-size:10.5px;line-height:1.7;color:var(--muted);margin-top:18px;padding-top:12px;border-top:1px solid rgba(198,188,166,.45)}
+  .source-bottom{position:absolute;left:0;right:0;bottom:0;font-size:11px;color:var(--muted);letter-spacing:.04em}
+
+  /* ---------- Rail ---------- */
+  .rail{position:absolute;left:72px;right:72px;bottom:62px;height:2px;color:var(--indigo)}
+  .rail .rail-base{position:absolute;left:0;right:0;top:0;height:2px;background:var(--hair)}
+  .rail .tick{position:absolute;top:-4px;width:1px;height:10px;background:var(--hair);transform:translateX(-.5px)}
+  .rail .dot{position:absolute;top:-5px;width:12px;height:12px;border-radius:50%;border:2px solid var(--indigo);background:var(--paper);transform:translateX(-50%)}
+  .rail .dot.on{background:var(--indigo)}
+  .rail .tlabel{position:absolute;bottom:26px;font-size:11px;font-weight:600;color:var(--indigo);white-space:nowrap;transform:translateX(-50%);letter-spacing:.06em}
+  .rail .tlabel.first{transform:none}
+
+  /* ---------- Notes / toast ---------- */
+  #notes{position:fixed;left:0;right:0;bottom:0;height:30vh;min-height:190px;background:rgba(10,11,13,.97);color:#EFE9DB;border-top:1px solid #3A3B40;z-index:100;overflow:auto;padding:18px 72px 24px}
+  #notes .note{display:grid;grid-template-columns:92px 1fr;gap:18px;padding:10px 0;border-bottom:1px solid rgba(239,233,219,.08)}
+  #notes .note.is-current{border-left:2px solid #7E8BB5;padding-left:12px;margin-left:-14px;background:rgba(126,139,181,.06)}
+  #notes .note-time{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:#7E8BB5;padding-top:2px}
+  #notes .note-title{font-family:var(--serif);font-size:14px;font-weight:600;color:#EFE9DB;margin-bottom:3px}
+  #notes .note-text{font-size:12.5px;line-height:1.8;color:#B8B0A2;max-width:860px}
+  #notes .note-warn{font-size:11px;line-height:1.7;color:#D3B98A;margin-top:6px;border-left:2px solid #8E836C;padding-left:8px}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(20,21,24,.92);color:#EFE9DB;font-size:12px;padding:8px 14px;border-radius:4px;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast.show{opacity:1}
+
+  /* ---------- Print ---------- */
+  @page{size:338.7mm 190.5mm;margin:0}
+  @media print{
+    html,body{width:auto;height:auto;overflow:visible;background:#fff}
+    #viewport{position:static;display:block;overflow:visible}
+    #stage{width:auto;height:auto;transform:none!important;display:block}
+    .slide{position:relative;width:1280px;height:720px;display:block!important;visibility:visible!important;opacity:1!important;break-after:page;page-break-after:always;overflow:hidden;transition:none!important}
+    .slide:last-child{break-after:auto;page-break-after:auto}
+    #notes,#toast,.map-card{display:none!important}
+    .anim,body.no-motion .anim{opacity:1!important;transform:none!important}
+    .bar i{transition:none!important}
+    .leaf.is-active{border-color:var(--map-border);background:var(--map-fill);color:#333}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+
+  /* ---------- No JS ---------- */
+  html.no-js #viewport{display:block;overflow:auto}
+  html.no-js #stage{transform:none;width:1280px;height:auto;margin:0 auto}
+  html.no-js .slide{position:relative;display:block;visibility:visible;opacity:1;height:720px;margin:0 auto 24px}
+  html.no-js #notes,html.no-js .map-card{display:none}
+
+  body.shot-mode .slide{transition:none!important}
+  body.shot-mode .slide:not(.is-active){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+  body.shot-mode .slide.is-active{visibility:visible!important;opacity:1!important}
+  body.shot-mode .anim,body.shot-mode .stat-anim{opacity:1!important;transform:none!important}
+  body.shot-mode .map-card{transition:none!important}
+  body.shot-mode .bar i,body.no-motion .bar i{transition:none!important}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+<script>window.__errors=[];window.addEventListener('error',function(e){window.__errors.push(String(e.message||e.error||'error'));});window.addEventListener('unhandledrejection',function(e){window.__errors.push(String(e.reason||'rejection'));});</script>
+<div id="viewport"><div id="stage">
+
+  <!-- P1 -->
+  <section class="slide theme-dark is-active" data-id="title" data-index="0" aria-hidden="false">
+    <div class="spine" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="title-block">
+      <h1 class="anim">《社区心理学》<span class="accent">阅读汇报</span></h1>
+      <div class="title-sub anim">第六章 · 精神健康系统</div>
+      <div class="title-rule anim"></div>
+      <div class="title-credits anim">
+        <span><span class="lbl">汇报人：</span><b>李伟烨</b></span>
+        <span><span class="lbl">小组成员：</span><b>郭子傅、辛润林、瞿绍卿</b></span>
+        <span><span class="lbl">日期：</span><b>2026 年 10 月</b></span>
+      </div>
+    </div>
+    <div class="pagenum">01 / 11</div>
+  </section>
+
+  <!-- P2 -->
+  <section class="slide theme-map" data-id="map" data-index="1" aria-hidden="true">
+    <header class="head map-head">
+      <div class="head-row"><div class="head-left"><span class="head-no">导 览</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div>
+      <div class="rule"></div>
+    </header>
+    <div class="eyebrow-row"><span>全 章 索 引</span><span class="right">四个问题 · 六个阶段</span></div>
+    <div class="map-viewport">
+      <div class="map-canvas">
+        <svg class="wires" width="1136" height="128" viewBox="0 0 1136 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M568 52 C568 92 130 88 130 128" stroke="#CFCFCF" stroke-width="1.5"/>
+          <path d="M568 52 C568 92 422 88 422 128" stroke="#CFCFCF" stroke-width="1.5"/>
+          <path d="M568 52 C568 92 714 88 714 128" stroke="#CFCFCF" stroke-width="1.5"/>
+          <path d="M568 52 C568 92 1006 88 1006 128" stroke="#CFCFCF" stroke-width="1.5"/>
+        </svg>
+        <div class="map-root anim"><span class="rk">第六章</span><span class="rt">精神健康系统</span></div>
+        <div class="map-columns anim">
+          <section class="map-col" data-branch="01">
+            <div class="map-branch"><span class="num">01</span><span class="bt">流行病学</span><span class="bs">有多少人</span></div>
+            <div class="chain">
+              <div class="node"><button type="button" class="leaf" data-node-id="eca" data-branch="01">ECA · 1980s</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="ncs" data-branch="01">NCS · 1990s</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="ncsr" data-branch="01">NCS-R · 2000–2002</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="community" data-branch="01">精神健康问题就在社区里</button></div>
+            </div>
+          </section>
+          <section class="map-col" data-branch="02">
+            <div class="map-branch"><span class="num">02</span><span class="bt">四个模型</span><span class="bs">怎么解释</span></div>
+            <div class="chain">
+              <div class="node"><button type="button" class="leaf" data-node-id="medical" data-branch="02">医学模型</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="psychoanalysis" data-branch="02">精神分析</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="behaviorism" data-branch="02">行为主义</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="humanism" data-branch="02">人本主义</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="limits" data-branch="02">共同局限：个体化、反应式</button></div>
+            </div>
+          </section>
+          <section class="map-col" data-branch="03">
+            <div class="map-branch"><span class="num">03</span><span class="bt">系统变革</span><span class="bs">人去了哪里</span></div>
+            <div class="chain">
+              <div class="node"><button type="button" class="leaf leaf-stage" data-node-id="premodern" data-branch="03">前现代</button></div>
+              <div class="node"><button type="button" class="leaf leaf-stage" data-node-id="asylum" data-branch="03">收容院</button></div>
+              <div class="node"><button type="button" class="leaf leaf-stage" data-node-id="medicalization" data-branch="03">医学化</button></div>
+              <div class="node gap-before"><button type="button" class="leaf leaf-stage" data-node-id="deinst" data-branch="03">去机构化</button></div>
+              <div class="gap" aria-hidden="true"><span>仅隔 6%</span></div>
+              <div class="node"><button type="button" class="leaf leaf-stage" data-node-id="transinst" data-branch="03">转换机构化</button></div>
+              <div class="node"><button type="button" class="leaf leaf-stage" data-node-id="programs" data-branch="03">示范项目</button></div>
+            </div>
+          </section>
+          <section class="map-col" data-branch="04">
+            <div class="map-branch"><span class="num">04</span><span class="bt">未竟</span><span class="bs">还差什么</span></div>
+            <div class="chain">
+              <div class="node"><button type="button" class="leaf" data-node-id="cost" data-branch="04">成本</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="prevention" data-branch="04">预防</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="stigma" data-branch="04">污名</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="fragmentation" data-branch="04">碎片化</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="mindbody" data-branch="04">身心整合</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="culture" data-branch="04">文化与偏见</button></div>
+              <div class="node"><button type="button" class="leaf" data-node-id="whotreats" data-branch="04">谁在治</button></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <div id="map-card" class="map-card" role="region" aria-live="polite" hidden>
+      <button type="button" class="map-card-close" aria-label="关闭摘要">×</button>
+      <div class="map-card-kicker"></div>
+      <h3 class="map-card-title"></h3>
+      <div class="map-card-body"></div>
+      <div class="map-card-src"></div>
+    </div>
+    <div class="marks">点击标签，查看 3–4 行原文摘要</div>
+    <div class="pagenum">02 / 11</div>
+  </section>
+
+  <!-- P3 -->
+  <section class="slide theme-dark" data-id="opening" data-index="2" aria-hidden="true">
+    <div class="spine" aria-hidden="true"><i></i><i></i><i></i></div>
+    <header class="head head--spine">
+      <div class="head-row"><div class="head-left"><span class="head-no">卷宗 06</span><span>精神健康系统</span></div><span class="head-right">阅读汇报 · 2026</span></div>
+      <div class="rule"></div>
+    </header>
+    <div class="opening-quote anim">
+      <p>对个体而言，精神错乱是罕见的，<br>但对于群体、国家和时代而言，精神错乱是一个普遍的现象。</p>
+      <div class="quote-src">—— 弗里德里希·威廉·尼采《超越善恶》</div>
+    </div>
+    <h2 class="opening-title anim"><span>去机构化之后，</span><br><em>人去了哪里？</em></h2>
+    <div class="opening-sub anim">社区心理学（第四版）· 第六章　精神健康系统</div>
+    <div class="pagenum">03 / 11</div>
+  </section>
+
+  <!-- P4 -->
+  <section class="slide theme-paper" data-id="era-premodern" data-index="3" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">01 / 06</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-single">
+      <div class="eyebrow anim">前 现 代</div>
+      <h2 class="judge judge-single anim">在成为「病」之前，<br>它是罪、是失衡、是神罚。</h2>
+      <p class="evidence anim">阴阳五行与四体液都曾解释精神失常；<span class="num-anim" data-num="1480" data-from="1400" data-duration="700">1480</span> 年代，教皇诺森八世正式认可迫害女巫——被迫害者中，一些人事实上正遭受某种精神疾病。</p>
+      <div class="source anim">教材《精神健康护理简史》</div>
+    </div>
+    <div class="rail" aria-hidden="true"><div class="rail-base"></div><div class="tick" style="left:0%"></div><div class="dot on" style="left:0%"></div><div class="tick" style="left:18%"></div><div class="dot" style="left:18%"></div><div class="tick" style="left:36%"></div><div class="dot" style="left:36%"></div><div class="tick" style="left:62%"></div><div class="dot" style="left:62%"></div><div class="tick" style="left:68%"></div><div class="dot" style="left:68%"></div><div class="tick" style="left:90%"></div><div class="dot" style="left:90%"></div><div class="tlabel first" style="left:0%">前现代</div></div>
+    <div class="marks">精神健康系统 · 发展史</div><div class="pagenum">04 / 11</div>
+  </section>
+
+  <!-- P5 -->
+  <section class="slide theme-paper" data-id="era-asylum" data-index="4" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">02 / 06</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-card">
+      <div class="left-col">
+        <div class="eyebrow anim">收 容 院</div>
+        <h2 class="judge judge-card anim">收容院是进步，<br>也是仓库化的开始。</h2>
+        <p class="evidence-copy anim"><span class="num-anim" data-num="17" data-duration="700">17</span> 世纪中期，伦敦伯利恒医院被叫作 Bedlam——这个词后来意为「混乱」。<br><span class="num-anim" data-num="1875" data-from="1800" data-duration="700">1875</span>–<span class="num-anim" data-num="1940" data-from="1900" data-duration="700">1940</span> 年，政府承担主要责任，三分之二患者住在公立精神病院，多数人接受的治疗很少。</p>
+        <div class="source anim">教材《精神健康护理简史》</div>
+      </div>
+      <aside class="archive-card anim">
+        <div class="card-no">档 案 02</div><div class="card-mark" aria-hidden="true"></div>
+        <h3 class="card-name">多罗西亚·迪克斯</h3>
+        <div class="card-en">DOROTHEA DIX · <span class="num-anim" data-num="1802" data-from="1750" data-duration="700">1802</span>–<span class="num-anim" data-num="1887" data-from="1850" data-duration="700">1887</span></div>
+        <div class="card-divider"></div>
+        <p class="card-body">精神健康护理改革者。她在这个国家到处游走，筹集资金建立精神健康护理医院。</p>
+        <blockquote class="card-quote">「她奔走建起的医院，后来成了仓库式收容所。」</blockquote>
+        <div class="card-note">—— 据教材转述</div>
+      </aside>
+    </div>
+    <div class="rail" aria-hidden="true"><div class="rail-base"></div><div class="tick" style="left:0%"></div><div class="dot" style="left:0%"></div><div class="tick" style="left:18%"></div><div class="dot on" style="left:18%"></div><div class="tick" style="left:36%"></div><div class="dot" style="left:36%"></div><div class="tick" style="left:62%"></div><div class="dot" style="left:62%"></div><div class="tick" style="left:68%"></div><div class="dot" style="left:68%"></div><div class="tick" style="left:90%"></div><div class="dot" style="left:90%"></div><div class="tlabel" style="left:18%">收容院</div></div>
+    <div class="marks">精神健康系统 · 发展史</div><div class="pagenum">05 / 11</div>
+  </section>
+
+  <!-- P6 -->
+  <section class="slide theme-paper" data-id="era-medical" data-index="5" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">03 / 06</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-single">
+      <div class="eyebrow anim">医 学 化</div>
+      <h2 class="judge judge-single anim">微生物理论把精神病学变成医学，<br>分类把病人变成诊断。</h2>
+      <p class="evidence evidence--wide anim">皮内尔的「痴呆」→ 克雷佩林的「早发性痴呆」→ 布洛伊勒的「精神分裂症」；<br>治疗手段是电休克与额叶切除。</p>
+      <div class="source anim">教材《精神健康护理简史》</div>
+    </div>
+    <div class="rail" aria-hidden="true"><div class="rail-base"></div><div class="tick" style="left:0%"></div><div class="dot" style="left:0%"></div><div class="tick" style="left:18%"></div><div class="dot" style="left:18%"></div><div class="tick" style="left:36%"></div><div class="dot on" style="left:36%"></div><div class="tick" style="left:62%"></div><div class="dot" style="left:62%"></div><div class="tick" style="left:68%"></div><div class="dot" style="left:68%"></div><div class="tick" style="left:90%"></div><div class="dot" style="left:90%"></div><div class="tlabel" style="left:36%">医学化</div></div>
+    <div class="marks">精神健康系统 · 发展史</div><div class="pagenum">06 / 11</div>
+  </section>
+
+  <!-- P7 -->
+  <section class="slide theme-paper" data-id="era-deinst" data-index="6" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">04 / 06</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-card">
+      <div class="left-col">
+        <div class="eyebrow anim">去 机 构 化</div>
+        <h2 class="judge judge-card anim">出院不等于回到社区。</h2>
+        <p class="evidence-copy anim">氯丙嗪等精神治疗药物、<span class="num-anim" data-num="1963" data-from="1900" data-duration="700">1963</span>《社区精神健康法》、ACLU 等法律诉讼<br>共同推动了出院潮。</p>
+        <div class="source anim">教材《去机构化》</div>
+      </div>
+      <aside class="archive-card anim">
+        <div class="card-no">档 案 04</div><div class="card-mark" aria-hidden="true"></div>
+        <h3 class="card-name">罗森汉研究</h3>
+        <div class="card-en">ROSENHAN · <span class="num-anim" data-num="1973" data-from="1900" data-duration="700">1973</span></div>
+        <div class="card-divider"></div>
+        <div class="card-stat"><span class="big num-anim" data-num="19">19</span><span class="unit">天</span><span class="stat-note">假病人平均住院（<span class="num-anim" data-num="7" data-duration="600">7</span>–<span class="num-anim" data-num="52" data-duration="600">52</span> 天）</span></div>
+        <p class="card-body">出院诊断多为「精神分裂症缓解期」。</p>
+        <blockquote class="card-quote">「一旦被贴上标签，就很难去除标签。」</blockquote>
+        <div class="card-note">—— 据教材转述</div>
+      </aside>
+    </div>
+    <div class="rail" aria-hidden="true"><div class="rail-base"></div><div class="tick" style="left:0%"></div><div class="dot" style="left:0%"></div><div class="tick" style="left:18%"></div><div class="dot" style="left:18%"></div><div class="tick" style="left:36%"></div><div class="dot" style="left:36%"></div><div class="tick" style="left:62%"></div><div class="dot on" style="left:62%"></div><div class="tick" style="left:68%"></div><div class="dot" style="left:68%"></div><div class="tick" style="left:90%"></div><div class="dot" style="left:90%"></div><div class="tlabel" style="left:62%">去机构化</div></div>
+    <div class="marks">精神健康系统 · 发展史</div><div class="pagenum">07 / 11</div>
+  </section>
+
+  <!-- P8 -->
+  <section class="slide theme-paper" data-id="era-transinst" data-index="7" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">05 / 06</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-evidence">
+      <div class="left-col">
+        <div class="eyebrow anim">转 换 机 构 化</div>
+        <h2 class="judge judge-evidence anim">人只是换了一个机构。</h2>
+        <p class="explain anim">塔尔博特（1975）认为「去机构化」是用词不当：更准确的说法是<strong>转换机构化</strong>——从一个糟糕的机构，转移到多个不幸的地方。</p>
+        <div class="source anim">教材《机构化的早期选择》</div>
+      </div>
+      <aside class="evidence-card anim">
+        <div class="card-no">证 据 05</div><div class="card-mark" aria-hidden="true"></div>
+        <div class="stat-grid">
+          <div class="stat stat-anim"><span class="num num-anim" data-num="115">115</span><span class="unit">万</span><div class="stat-label">被安置在护理之家</div></div>
+          <div class="stat stat-anim"><span class="num num-anim" data-num="40">40</span><span class="unit">万</span><div class="stat-label">寄宿护理之家</div></div>
+        </div>
+        <div class="stat-stack">
+          <div class="stat-row stat-anim"><span class="num num-anim" data-num="15">15</span><span class="unit">万人</span><div class="stat-label">无家可归（一天之内）</div></div>
+          <div class="stat-row stat-anim"><span class="num num-anim" data-num="15">15</span><span class="unit">万人</span><div class="stat-label">被拘留或监禁（同一天）</div></div>
+        </div>
+        <div class="stat-caveat">两组可能重合</div>
+      </aside>
+    </div>
+    <div class="rail" aria-hidden="true"><div class="rail-base"></div><div class="tick" style="left:0%"></div><div class="dot" style="left:0%"></div><div class="tick" style="left:18%"></div><div class="dot" style="left:18%"></div><div class="tick" style="left:36%"></div><div class="dot" style="left:36%"></div><div class="tick" style="left:62%"></div><div class="dot" style="left:62%"></div><div class="tick" style="left:68%"></div><div class="dot on" style="left:68%"></div><div class="tick" style="left:90%"></div><div class="dot" style="left:90%"></div><div class="tlabel" style="left:68%">转换机构化</div></div>
+    <div class="marks">精神健康系统 · 发展史</div><div class="pagenum">08 / 11</div>
+  </section>
+
+  <!-- P9 -->
+  <section class="slide theme-paper" data-id="era-programs" data-index="8" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">06 / 06</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-evidence">
+      <div class="left-col">
+        <div class="eyebrow anim">示 范 项 目</div>
+        <h2 class="judge judge-evidence anim">替代方案被证明有效，<br>但账单没人付。</h2>
+        <p class="explain anim">ACT 靠跨学科小组上门、<span class="num-anim" data-num="10">10</span>:<span class="num-anim" data-num="1">1</span> 的人员比，而不是等案主来办公室。</p>
+        <div class="source anim">教材《针对精神障碍个体的示范项目》</div>
+      </div>
+      <aside class="evidence-card anim">
+        <div class="card-no">证 据 06</div><div class="card-mark" aria-hidden="true"></div>
+        <div class="compare-row stat-anim">
+          <div class="compare-head"><span class="compare-label">ACT · 一年后仍在项目中</span><span class="compare-num num-anim" data-num="76" data-suffix="%">76%</span></div>
+          <div class="bar"><i style="--bar:.76" data-bar=".76"></i></div>
+        </div>
+        <div class="compare-row stat-anim">
+          <div class="compare-head"><span class="compare-label">收容中心 · 一年后仍在项目中</span><span class="compare-num num-anim" data-num="7" data-suffix="%">7%</span></div>
+          <div class="bar"><i style="--bar:.07" data-bar=".07"></i></div>
+        </div>
+        <div class="stat-line stat-anim"><span class="num num-anim" data-num="1500">1500</span><span class="unit">美元</span><div class="stat-label">ACT 每人每年节省</div></div>
+        <div class="mini-grid stat-anim">
+          <div><span class="mini-num num-anim" data-num="60" data-prefix="−" data-suffix="%">−60%</span><span class="mini-label">环绕式密尔沃基 · 住院</span></div>
+          <div><span class="mini-num num-anim" data-num="80" data-prefix="−" data-suffix="%">−80%</span><span class="mini-label">精神病院</span></div>
+        </div>
+      </aside>
+    </div>
+    <div class="rail" aria-hidden="true"><div class="rail-base"></div><div class="tick" style="left:0%"></div><div class="dot" style="left:0%"></div><div class="tick" style="left:18%"></div><div class="dot" style="left:18%"></div><div class="tick" style="left:36%"></div><div class="dot" style="left:36%"></div><div class="tick" style="left:62%"></div><div class="dot" style="left:62%"></div><div class="tick" style="left:68%"></div><div class="dot" style="left:68%"></div><div class="tick" style="left:90%"></div><div class="dot on" style="left:90%"></div><div class="tlabel" style="left:90%">示范项目</div></div>
+    <div class="marks">精神健康系统 · 发展史</div><div class="pagenum">09 / 11</div>
+  </section>
+
+  <!-- P10 -->
+  <section class="slide theme-dark" data-id="conclusion" data-index="9" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">结 论</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-conclusion">
+      <div class="eyebrow anim">我 的 读 法</div>
+      <h2 class="concl-title anim">我们不是没有方案，<br>是不肯付账。</h2>
+      <div class="concl-grid">
+        <div class="concl-col anim"><div class="col-no">01</div><h3>ACT 让 <span class="num-anim" data-num="76" data-suffix="%">76%</span> 的人留下来，<br>收容中心只有 <span class="num-anim" data-num="7" data-suffix="%">7%</span>。</h3><p>方案被证明有效，成本也更高：每人每年省 <span class="num-anim" data-num="1500">1500</span> 美元，是要先付出去的。</p></div>
+        <div class="concl-col anim"><div class="col-no">02</div><h3>整合治疗成本更高，预防至今不在预算里。</h3><p>教材引 Sharstein：我们是否有足够的远见来支付这笔账单？</p></div>
+        <div class="concl-col anim"><div class="col-no">03</div><h3>敏还会回来。</h3><p>只要出院之后没有人监督服药、没有家庭支持、没有预防预算。</p></div>
+      </div>
+      <div class="source anim">教材《战斗还在继续：路在何方》；我的读法</div>
+    </div>
+    <div class="pagenum">10 / 11</div>
+  </section>
+
+  <!-- P11 -->
+  <section class="slide theme-paper" data-id="sources" data-index="10" aria-hidden="true">
+    <header class="head"><div class="head-row"><div class="head-left"><span class="head-no">来 源</span><span>第六章 · 精神健康系统</span></div><span class="head-right">阅读汇报 · 社区心理学（第四版）</span></div><div class="rule"></div></header>
+    <div class="content content-sources">
+      <div class="sources-left anim">
+        <div class="eyebrow">节 名 索 引</div>
+        <ol class="index-list">
+          <li><span class="idx">01</span><span class="idx-name">前现代</span><span class="idx-arrow">→</span><span class="idx-src">精神健康护理简史</span></li>
+          <li><span class="idx">02</span><span class="idx-name">收容院</span><span class="idx-arrow">→</span><span class="idx-src">精神健康护理简史</span></li>
+          <li><span class="idx">03</span><span class="idx-name">医学化</span><span class="idx-arrow">→</span><span class="idx-src">精神健康护理简史</span></li>
+          <li><span class="idx">04</span><span class="idx-name">去机构化</span><span class="idx-arrow">→</span><span class="idx-src">去机构化</span></li>
+          <li><span class="idx">05</span><span class="idx-name">转换机构化</span><span class="idx-arrow">→</span><span class="idx-src">机构化的早期选择</span></li>
+          <li><span class="idx">06</span><span class="idx-name">示范项目</span><span class="idx-arrow">→</span><span class="idx-src">针对精神障碍个体的示范项目</span></li>
+        </ol>
+      </div>
+      <div class="sources-right anim">
+        <div class="eyebrow">引 用</div>
+        <ol class="cite-list">
+          <li><span class="cite-author">Talbott, J.</span> <span class="cite-year">1975</span> <span class="cite-title">Deinstitutionalization: A misnomer.</span></li>
+          <li><span class="cite-author">Bachrach, L. L.</span> <span class="cite-year">1989</span> <span class="cite-title">Deinstitutionalization: A semantic analysis.</span></li>
+          <li><span class="cite-author">Rosenhan, D. L.</span> <span class="cite-year">1973</span> <span class="cite-title">On being sane in insane places.</span></li>
+          <li><span class="cite-author">Warner, R.</span> <span class="cite-year">1989</span> <span class="cite-title">Deinstitutionalization: Economic factors.</span></li>
+          <li><span class="cite-author">Bond, G. R., et al.</span> <span class="cite-year">1990</span> <span class="cite-title">Assertive community treatment.</span></li>
+          <li><span class="cite-author">Kamradt, B.</span> <span class="cite-year">2000</span> <span class="cite-title">Wraparound Milwaukee.</span></li>
+          <li><span class="cite-author">Torrey, E. F.</span> <span class="cite-year">1997</span> <span class="cite-title">The continuing battle.</span></li>
+          <li><span class="cite-author">Kessler, R. C., et al.</span> <span class="cite-year">2005</span> <span class="cite-title">NCS-R.</span></li>
+        </ol>
+        <div class="source-note">寄养社区数据：99% 依从率 / 60% 再入院率（Coalition for Community Living, 2008），仅备注。</div>
+      </div>
+      <div class="source-bottom">以上为教材原意；标为「我的读法」处为个人判断。</div>
+    </div>
+    <div class="pagenum">11 / 11</div>
+  </section>
+
+</div></div>
+
+<aside id="notes" hidden aria-hidden="true"></aside>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="application/json" id="map-data">
+{"nodes":{
+"eca":{"id":"eca","branch":"01","branchPath":"01 · 流行病学","label":"ECA · 1980s","lines":["20 世纪 80 年代，NIMH 在多座城市抽样。","用 DSM-III 口径估计社区中的障碍分布。","研究想回答：精神障碍在人群中有多常见。","样本与诊断标准，决定了数字能比较到什么程度。"],"source":"教材《精神疾病的流行病学估计》"},
+"ncs":{"id":"ncs","branch":"01","branchPath":"01 · 流行病学","label":"NCS · 1990s","lines":["90 年代改用 DSM-III-R 口径重做调查。","关注共病：一个人同时符合多种诊断。","严重患者往往也是共病最多的人。","口径一变，流行率就不能与上一轮直接对比。"],"source":"教材《精神疾病的流行病学估计》"},
+"ncsr":{"id":"ncsr","branch":"01","branchPath":"01 · 流行病学","label":"NCS-R · 2000–2002","lines":["2000–2002 年用 DSM-IV 口径再做一次。","目的之一是检验前两轮结论是否稳定。","重点从“有多少”转向“谁得到了治疗”。","确诊并不等于得到治疗。"],"source":"教材《精神疾病的流行病学估计》"},
+"community":{"id":"community","branch":"01","branchPath":"01 · 流行病学","label":"精神健康问题就在社区里","lines":["多轮调查与更早的曼哈顿中区研究互相印证。","取样地点、年代、诊断标准都不同，结论却相近。","精神障碍不是边缘现象，而是社区生活的一部分。","因此，干预不能只发生在医院里。"],"source":"教材《精神疾病的流行病学估计》"},
+"medical":{"id":"medical","branch":"02","branchPath":"02 · 四个模型","label":"医学模型","lines":["假定障碍源于身体或内心功能的紊乱。","症状→诊断→治疗，是它的基本程序。","它留下两笔遗产：诊断标签与专家权威。","社区心理学对这两笔遗产都保持警惕。"],"source":"教材《精神健康和精神障碍的理论模型》"},
+"psychoanalysis":{"id":"psychoanalysis","branch":"02","branchPath":"02 · 四个模型","label":"精神分析","lines":["弗洛伊德把谈话治疗确立为一种方法。","它关注早期经验与无意识冲突。","阿德勒从中分出“社区感/社会兴趣”。","传统长程分析对严重精神疾病效果有限。"],"source":"教材《精神健康和精神障碍的理论模型》"},
+"behaviorism":{"id":"behaviorism","branch":"02","branchPath":"02 · 四个模型","label":"行为主义","lines":["经典条件作用与操作条件作用解释行为如何形成。","强化、脱敏、放松训练被用于改变症状。","塞利格曼用“习得性无助”解释抑郁。","疗法需量身定制，因而劳动密集、难以规模化。"],"source":"教材《精神健康和精神障碍的理论模型》"},
+"humanism":{"id":"humanism","branch":"02","branchPath":"02 · 四个模型","label":"人本主义","lines":["60 年代人权运动影响了人们对“病”的理解。","马斯洛、莱恩怀疑标签本身制造了功能失调。","罗杰斯以“案主”取代“患者”，强调反思。","它把“所有人都有价值”“个人最了解自己”带进社区心理学。"],"source":"教材《精神健康和精神障碍的理论模型》"},
+"limits":{"id":"limits","branch":"02","branchPath":"02 · 四个模型","label":"共同局限：个体化、反应式","lines":["四个模型大多把问题放在个体内部。","它们等到症状出现才介入，属于反应式治疗。","社区心理学要求把干预放到系统与生态层面。","不是否定治疗，而是改变只治疗一个个人的默认设置。"],"source":"教材《精神健康和精神障碍的理论模型》"},
+"premodern":{"id":"premodern","branch":"03","branchPath":"03 · 系统变革","label":"前现代","lines":["古代中国用阴阳五行解释身心平衡。","古希腊用四体液解释情绪与精神失常。","欧洲中世纪把异常归入宗教与道德秩序。","这些解释共享一个前提：异常来自人之外。"],"source":"教材《精神健康护理简史》"},
+"asylum":{"id":"asylum","branch":"03","branchPath":"03 · 系统变革","label":"收容院","lines":["收容院最初承载人道改革的希望。","建院者相信，环境本身可以治疗。","改革者奔走建院，医院却迅速拥挤。","收容与治疗的界线，从此一直模糊。"],"source":"教材《精神健康护理简史》"},
+"medicalization":{"id":"medicalization","branch":"03","branchPath":"03 · 系统变革","label":"医学化","lines":["微生物理论让精神病学转向医学与生物学。","疾病被设想为由病原体或身体机制引起。","命名与分类，让研究可以积累与比较。","这套语言后来也成为标签的入口。"],"source":"教材《精神健康护理简史》"},
+"deinst":{"id":"deinst","branch":"03","branchPath":"03 · 系统变革","label":"去机构化","lines":["字面上是把患者送回社区，原文认为这太简单。","巴拉赫拆出三个过程：人数下降、准入转向、责任分散。","争论在预算、劳动力与意识形态之间。","定义之争的背后，是谁来承担照护责任。"],"source":"教材《去机构化》"},
+"transinst":{"id":"transinst","branch":"03","branchPath":"03 · 系统变革","label":"转换机构化","lines":["塔尔博特认为“去机构化”是用词不当。","更准确的说法是转换机构化：照护地点发生转移。","转移不等于治疗质量提高。","这个概念要求我们追问：照护责任落在谁身上。"],"source":"教材《机构化的早期选择》"},
+"programs":{"id":"programs","branch":"03","branchPath":"03 · 系统变革","label":"示范项目","lines":["示范项目把“社区本位”从口号变成可检验的方案。","目标包括生活技能、住房、治疗连续性与案主参与。","它们属于三级预防，而不是等复发后再处理。","评价不只看症状，也看住房、就业与社会关系。"],"source":"教材《针对精神障碍个体的示范项目》"},
+"cost":{"id":"cost","branch":"04","branchPath":"04 · 未竟","label":"成本","lines":["整合治疗的前期投入高于传统服务。","省下的往往是住院与急诊的长期成本。","预算按年度算，收益却跨年度。","成本效益的争论，取决于把时间尺度放多长。"],"source":"教材《战斗还在继续：路在何方》"},
+"prevention":{"id":"prevention","branch":"04","branchPath":"04 · 未竟","label":"预防","lines":["现有系统把大部分资源放在事后治疗。","预防项目要面对“收益太远”的政治难题。","儿童、家庭与学校是常被提到的切入点。","预防的时间尺度，与预算周期并不匹配。"],"source":"教材《战斗还在继续：路在何方》"},
+"stigma":{"id":"stigma","branch":"04","branchPath":"04 · 未竟","label":"污名","lines":["污名让求助变成一件需要勇气的事。","标签一旦贴上，别人会用它解释你的一切行为。","家庭与社区的态度，会影响人是否愿意治疗。","反污名不只是宣传，也要改变制度性的排斥。"],"source":"教材《战斗还在继续：路在何方》"},
+"fragmentation":{"id":"fragmentation","branch":"04","branchPath":"04 · 未竟","label":"碎片化","lines":["精神健康、医疗、司法与福利各管一段。","案主常在系统之间被转介，而不是被接住。","协调不足之外，原文还强调服务品质问题。","碎片化的代价，最后由案主和家庭承担。"],"source":"教材《战斗还在继续：路在何方》"},
+"mindbody":{"id":"mindbody","branch":"04","branchPath":"04 · 未竟","label":"身心整合","lines":["生理健康与精神健康相互依赖。","传统精神科工具容易漏诊身体疾病。","老年人、女性与无家可归者风险更高。","整合治疗要求把两者放在同一个护理架构里。"],"source":"教材《战斗还在继续：路在何方》"},
+"culture":{"id":"culture","branch":"04","branchPath":"04 · 未竟","label":"文化与偏见","lines":["诊断标准与治疗方式都带着文化假设。","少数族群可能更难被系统识别与接住。","原文提醒：精神异常者的构成正在变化。","适切文化，不是附加项，而是治疗的一部分。"],"source":"教材《战斗还在继续：路在何方》"},
+"whotreats":{"id":"whotreats","branch":"04","branchPath":"04 · 未竟","label":"谁在治","lines":["精神科医生、临床心理学家、社会工作者分工不同。","处方权、保险支付与专业边界长期有争议。","治疗提供者通常处在权威位置。","谁有资格治疗，也决定了谁能被服务。"],"source":"教材《案例 6-1》"}
+}}
+</script>
+
+<script type="application/json" id="notes-data">
+[
+{"id":"title","title":"标题","time":"0:00–0:15","text":"投影亮起，观众落座。不口播，或只说一句：我们开始。"},
+{"id":"map","title":"全章索引","time":"0:15–0:50","text":"这张图是全章索引：上面四个问题，下面六个阶段。后面六页沿这条线走。提问时可以点任意标签，看三到四行原文摘要。"},
+{"id":"opening","title":"开场","time":"0:50–1:20","text":"尼采说，对个体而言精神错乱罕见，对群体和时代却普遍。敏二十五岁，不断出院又入院。她的医生说她有精神分裂症，她的家人说她忘了吃药。去机构化之后，像她这样的人去了哪里？先别急着回答“社区”，我们沿历史走一遍。"},
+{"id":"era-premodern","title":"前现代","time":"1:20–2:05","text":"这个时代，敏这样的人睡在哪里？在村里，在家人和巫祝手里。阴阳五行、四体液、女巫审判，都在用超自然或道德的语言解释异常。在成为“病”之前，它先是罪、失衡、神罚。如果她生在古代中国，治疗会不同——教材有依据，这里只作假设。解释权不在病人手里。"},
+{"id":"era-asylum","title":"收容院","time":"2:05–2:55","text":"这个时代，她睡在收容院。伯利恒医院被叫作 Bedlam，后来这个词意为混乱。迪克斯奔走建院，1875 到 1940 年政府承担主要责任，三分之二患者住在公立精神病院，多数人接受的治疗很少。收容院是进步，也是仓库化的开始。"},
+{"id":"era-medical","title":"医学化","time":"2:55–3:45","text":"这个时代，她睡在公立精神病院。微生物理论让精神病学变成医学；皮内尔叫它痴呆，克雷佩林叫它早发性痴呆，布洛伊勒叫它精神分裂症。分类让研究积累，也把病人变成诊断。治疗手段是电休克与额叶切除。"},
+{"id":"era-deinst","title":"去机构化","time":"3:45–4:40","text":"这个时代，她睡在“社区”。氯丙嗪、1963 年《社区精神健康法》、ACLU 的诉讼，一起推动了出院潮。但出院不等于回到社区。罗森汉的假病人平均住了 19 天，离开时被贴上“精神分裂症缓解期”。一旦被贴上标签，就很难去除标签。"},
+{"id":"era-transinst","title":"转换机构化","time":"4:40–5:35","text":"这个时代，她睡在护理之家、街头和监狱。塔尔博特说，“去机构化”是用词不当，更准确的说法是转换机构化——从一个糟糕的机构，转移到多个不幸的地方。敏不是复发，是被转移。115 万在护理之家，40 万在寄宿护理，15 万无家可归，15 万被拘留或监禁。"},
+{"id":"era-programs","title":"示范项目","time":"5:35–6:30","text":"这个时代，她睡在有支持的住房里。ACT 靠跨学科小组上门，10:1 的人员比，不等案主来办公室。一年后，76% 留在 ACT，收容中心只有 7%。每人每年省 1500 美元。环绕式密尔沃基把住院降了 60%，精神病院降了 80%。方案有效，但账单没人付。"},
+{"id":"conclusion","title":"结论","time":"6:30–7:25","text":"所以，我们不是没有方案，是不肯付账。ACT 让 76% 的人留下来，收容中心只有 7%；方案有效，成本也更高，1500 美元是要先付出去的。整合治疗更贵，预防至今不在预算里。敏还会回来——只要出院之后没有人监督服药、没有家庭支持、没有预防预算。超时版：只念标题，加一句“敏还会回来”。"},
+{"id":"sources","title":"来源","time":"7:25–7:40","text":"以上为教材原意；标为“我的读法”处是个人判断。谢谢。提问可以点 P2 的标签，看原文摘要。","warn":"备注：教材 NCS 段落的 23.4% 与同段 ECA 的 1.3%、终身 50% 自相矛盾，按原书/OCR 疑误处理，屏幕不引用。"}
+]
+</script>
+
+<script>
+(function(){
+  'use strict';
+  document.documentElement.classList.remove('no-js');
+  document.documentElement.classList.add('js');
+  var stage = document.getElementById('stage');
+  var viewport = document.getElementById('viewport');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var notesEl = document.getElementById('notes');
+  var mapCard = document.getElementById('map-card');
+  var mapData = JSON.parse(document.getElementById('map-data').textContent);
+  var nodesData = mapData.nodes;
+  var notesData = JSON.parse(document.getElementById('notes-data').textContent);
+  var state = { index:0, busy:false, notesOpen:false, motion:true, cardOpen:false, cardOwner:null };
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { state.motion = false; document.body.classList.add('no-motion'); }
+
+  function scaleStage(){
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    if (!isFinite(s) || s <= 0) s = 1;
+    stage.style.transform = 'scale(' + s + ')';
+  }
+
+  function cancelAnim(el){
+    if (!el) return;
+    try { el.getAnimations().forEach(function(a){ a.cancel(); }); } catch(e){}
+  }
+
+  function formatNum(v, decimals){
+    return decimals > 0 ? v.toFixed(decimals) : String(Math.round(v));
+  }
+
+  function cancelNumbers(slide){
+    if (!slide) return;
+    slide.querySelectorAll('.num-anim').forEach(function(el){
+      if (el._numTimer) { clearInterval(el._numTimer); el._numTimer = null; }
+    });
+  }
+
+  function setNumbersFinal(slide){
+    if (!slide) return;
+    cancelNumbers(slide);
+    slide.querySelectorAll('.num-anim').forEach(function(el){
+      var to = parseFloat(el.getAttribute('data-num'));
+      if (isNaN(to)) return;
+      var dec = parseInt(el.getAttribute('data-decimals') || '0', 10);
+      el.textContent = (el.getAttribute('data-prefix') || '') + formatNum(to, dec) + (el.getAttribute('data-suffix') || '');
+    });
+  }
+
+  function animateNumbers(slide){
+    if (!slide) return;
+    slide.querySelectorAll('.num-anim').forEach(function(el, i){
+      var to = parseFloat(el.getAttribute('data-num'));
+      if (isNaN(to)) return;
+      var from = parseFloat(el.getAttribute('data-from') || '0');
+      if (isNaN(from)) from = 0;
+      var dur = parseInt(el.getAttribute('data-duration') || '900', 10);
+      var dec = parseInt(el.getAttribute('data-decimals') || '0', 10);
+      var prefix = el.getAttribute('data-prefix') || '';
+      var suffix = el.getAttribute('data-suffix') || '';
+      if (el._numTimer) { clearInterval(el._numTimer); el._numTimer = null; }
+      if (!state.motion) { el.textContent = prefix + formatNum(to, dec) + suffix; return; }
+      el.textContent = prefix + formatNum(from, dec) + suffix;
+      var startTime = null;
+      var delay = 80 + i * 60;
+      el._numTimer = setInterval(function(){
+        var now = Date.now();
+        if (startTime === null) startTime = now + delay;
+        var elapsed = now - startTime;
+        var p = Math.min(1, Math.max(0, elapsed / dur));
+        var eased = 1 - Math.pow(1 - p, 3);
+        var v = from + (to - from) * eased;
+        el.textContent = prefix + formatNum(v, dec) + suffix;
+        if (p >= 1) {
+          clearInterval(el._numTimer);
+          el._numTimer = null;
+          el.textContent = prefix + formatNum(to, dec) + suffix;
+        }
+      }, 16);
+    });
+  }
+
+  function setBarsFinal(slide){
+    if (!slide) return;
+    slide.querySelectorAll('[data-bar]').forEach(function(el){
+      var target = el.getAttribute('data-bar');
+      if (el._barAnim) { try { el._barAnim.cancel(); } catch(e){} el._barAnim = null; }
+      el.style.setProperty('--bar', target);
+      el.style.transform = 'scaleX(' + target + ')';
+    });
+  }
+
+  function animateBars(slide){
+    if (!slide) return;
+    slide.querySelectorAll('[data-bar]').forEach(function(el){
+      var target = parseFloat(el.getAttribute('data-bar'));
+      if (isNaN(target)) return;
+      if (el._barAnim) { try { el._barAnim.cancel(); } catch(e){} el._barAnim = null; }
+      el.style.setProperty('--bar', '0');
+      el.style.transform = 'scaleX(0)';
+      void el.offsetWidth;
+      if (!state.motion) { el.style.transform = 'scaleX(' + target + ')'; return; }
+      try {
+        el._barAnim = el.animate(
+          [{ transform:'scaleX(0)' }, { transform:'scaleX(' + target + ')' }],
+          { duration:900, easing:'cubic-bezier(.22,.61,.36,1)', fill:'both' }
+        );
+      } catch(e) { el.style.transform = 'scaleX(' + target + ')'; }
+    });
+  }
+
+  function setFinal(slide){
+    if (!slide) return;
+    slide.querySelectorAll('.anim,.stat-anim').forEach(function(el){
+      cancelAnim(el);
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    });
+    setNumbersFinal(slide);
+    setBarsFinal(slide);
+  }
+
+  function runEntrance(slide){
+    if (!slide) return;
+    var anims = slide.querySelectorAll('.anim');
+    if (!state.motion) { setFinal(slide); return; }
+    anims.forEach(function(el, i){
+      cancelAnim(el);
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(8px)';
+      try {
+        el.animate(
+          [{ opacity:0, transform:'translateY(8px)' }, { opacity:1, transform:'translateY(0)' }],
+          { duration:420, delay:80 + i*60, easing:'cubic-bezier(.22,.61,.36,1)', fill:'both' }
+        );
+      } catch(e) { el.style.opacity='1'; el.style.transform='none'; }
+    });
+    var stats = slide.querySelectorAll('.stat-anim');
+    stats.forEach(function(el, i){
+      if (!state.motion) { el.style.opacity='1'; return; }
+      el.style.opacity = '0.15';
+      try {
+        el.animate(
+          [{ opacity:0.15 }, { opacity:1 }],
+          { duration:300, delay:200 + i*80, easing:'ease-out', fill:'both' }
+        );
+      } catch(e) { el.style.opacity='1'; }
+    });
+    animateNumbers(slide);
+    animateBars(slide);
+  }
+
+  function updateNotes(){
+    var notes = notesEl.querySelectorAll('.note');
+    for (var i=0; i<notes.length; i++) notes[i].classList.toggle('is-current', i === state.index);
+    if (state.notesOpen) {
+      var cur = notes[state.index];
+      if (cur && cur.scrollIntoView) {
+        try { cur.scrollIntoView({block:'nearest'}); } catch(e){}
+      }
+    }
+  }
+
+  function closeCard(restoreFocus){
+    if (!state.cardOpen) return;
+    var owner = state.cardOwner;
+    mapCard.hidden = true;
+    state.cardOpen = false;
+    state.cardOwner = null;
+    document.querySelectorAll('.leaf.is-active').forEach(function(n){
+      n.classList.remove('is-active');
+      n.setAttribute('aria-expanded','false');
+    });
+    if (restoreFocus && owner) {
+      var node = document.querySelector('.leaf[data-node-id="' + owner + '"]');
+      if (node) node.focus();
+    }
+  }
+
+  function placeCard(node){
+    mapCard.hidden = false;
+    mapCard.style.right = 'auto';
+    mapCard.style.bottom = 'auto';
+    mapCard.style.left = '0px';
+    mapCard.style.top = '0px';
+    var sr = stage.getBoundingClientRect();
+    var scale = sr.width / 1280;
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    var nr = node.getBoundingClientRect();
+    var nodeLeft = (nr.left - sr.left) / scale;
+    var nodeRight = (nr.right - sr.left) / scale;
+    var nodeTop = (nr.top - sr.top) / scale;
+    var nodeH = nr.height / scale;
+    var cardW = mapCard.offsetWidth;
+    var cardH = mapCard.offsetHeight;
+    var gap = 12;
+    var left = nodeRight + gap;
+    var side = 'right';
+    if (left + cardW > 1208) {
+      left = nodeLeft - cardW - gap;
+      side = 'left';
+    }
+    left = Math.max(72, Math.min(left, 1208 - cardW));
+    var top = nodeTop + nodeH / 2 - cardH / 2;
+    top = Math.max(150, Math.min(top, 680 - cardH));
+    mapCard.style.left = left + 'px';
+    mapCard.style.top = top + 'px';
+    mapCard.classList.toggle('pos-left', side === 'left');
+  }
+
+  function openCard(id, opts){
+    opts = opts || {};
+    var node = document.querySelector('.leaf[data-node-id="' + id + '"]');
+    var data = nodesData[id];
+    if (!node || !data) return;
+    if (state.cardOpen && state.cardOwner === id) { closeCard(true); return; }
+    closeCard(false);
+    state.cardOpen = true;
+    state.cardOwner = id;
+    mapCard.querySelector('.map-card-kicker').textContent = data.branchPath;
+    mapCard.querySelector('.map-card-title').textContent = data.label;
+    mapCard.querySelector('.map-card-body').innerHTML = data.lines.map(function(line){
+      return '<span class="map-line">' + line + '</span>';
+    }).join('');
+    mapCard.querySelector('.map-card-src').textContent = data.source;
+    node.classList.add('is-active');
+    node.setAttribute('aria-expanded','true');
+    placeCard(node);
+    if (opts.keyboard) {
+      var closeBtn = mapCard.querySelector('.map-card-close');
+      if (closeBtn) closeBtn.focus();
+    }
+  }
+
+  function toggleNotes(){
+    if (!state.notesOpen) closeCard(false);
+    state.notesOpen = !state.notesOpen;
+    notesEl.hidden = !state.notesOpen;
+    notesEl.setAttribute('aria-hidden', state.notesOpen ? 'false' : 'true');
+    if (state.notesOpen) updateNotes();
+  }
+
+  function closeNotes(){
+    if (!state.notesOpen) return;
+    state.notesOpen = false;
+    notesEl.hidden = true;
+    notesEl.setAttribute('aria-hidden','true');
+  }
+
+  function toggleMotion(){
+    state.motion = !state.motion;
+    document.body.classList.toggle('no-motion', !state.motion);
+    if (!state.motion) {
+      document.getAnimations().forEach(function(a){ try { a.finish(); } catch(e){} });
+      setFinal(slides[state.index]);
+    }
+  }
+
+  function toggleFullscreen(){
+    var el = document.documentElement;
+    if (!document.fullscreenElement) {
+      var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) { try { req.call(el); } catch(e){} }
+    } else {
+      var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      if (exit) { try { exit.call(document); } catch(e){} }
+    }
+  }
+
+  function printDeck(){
+    closeCard(false);
+    window.print();
+  }
+
+  function goTo(i, opts){
+    opts = opts || {};
+    if (i < 0 || i >= slides.length) return;
+    if (i === state.index && !opts.force) return;
+    if (state.busy && !opts.instant) return;
+    closeCard(false);
+    var oldSlide = slides[state.index];
+    var next = slides[i];
+    if (opts.instant) {
+      slides.forEach(function(s, j){
+        s.classList.remove('is-active','is-leaving');
+        s.setAttribute('aria-hidden', j === i ? 'false' : 'true');
+        s.inert = j !== i;
+      });
+      next.classList.add('is-active');
+      state.index = i;
+      setFinal(next);
+      updateNotes();
+      return;
+    }
+    state.busy = true;
+    if (oldSlide && oldSlide !== next) {
+      oldSlide.classList.remove('is-active');
+      oldSlide.classList.add('is-leaving');
+      oldSlide.setAttribute('aria-hidden','true');
+      oldSlide.inert = true;
+      cancelNumbers(oldSlide);
+      setBarsFinal(oldSlide);
+      setTimeout(function(){ oldSlide.classList.remove('is-leaving'); }, 160);
+    }
+    next.classList.add('is-active');
+    next.setAttribute('aria-hidden','false');
+    next.inert = false;
+    state.index = i;
+    runEntrance(next);
+    updateNotes();
+    setTimeout(function(){ state.busy = false; }, 220);
+  }
+
+  function next(){ goTo(state.index + 1); }
+  function prev(){ goTo(state.index - 1); }
+
+  function renderNotes(){
+    notesEl.innerHTML = notesData.map(function(n, i){
+      return '<article class="note" data-note-index="' + i + '">' +
+        '<div class="note-time">' + n.time + '</div>' +
+        '<div><div class="note-title">' + n.title + '</div>' +
+        '<div class="note-text">' + n.text + '</div>' +
+        (n.warn ? '<div class="note-warn">' + n.warn + '</div>' : '') +
+        '</div></article>';
+    }).join('');
+  }
+
+  function measure(){
+    var out = { overflow: [], cards: [], rails: [], errors: window.__errors.slice() };
+    slides.forEach(function(slide, i){
+      var sr = slide.getBoundingClientRect();
+      var maxR=0, maxB=0, whoR='', whoB='';
+      slide.querySelectorAll('*').forEach(function(el){
+        if (el.closest('#notes') || el.closest('.map-card')) return;
+        if (el.closest('.rail')) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width && !r.height) return;
+        var dr = r.right - sr.right, db = r.bottom - sr.bottom;
+        if (dr > maxR) { maxR = dr; whoR = (el.className || el.tagName) + ' :: ' + (el.textContent || '').slice(0,24); }
+        if (db > maxB) { maxB = db; whoB = (el.className || el.tagName) + ' :: ' + (el.textContent || '').slice(0,24); }
+      });
+      out.overflow.push({ id: slide.dataset.id, index:i, right:Math.round(maxR*10)/10, bottom:Math.round(maxB*10)/10, whoR:whoR, whoB:whoB });
+    });
+    slides.forEach(function(slide){
+      var rail = slide.querySelector('.rail');
+      if (!rail) return;
+      var rr = rail.getBoundingClientRect();
+      var dot = rail.querySelector('.dot.on');
+      if (!dot) return;
+      var dr = dot.getBoundingClientRect();
+      var ratio = (dr.left + dr.width/2 - rr.left) / rr.width;
+      out.rails.push({ id:slide.dataset.id, ratio: Math.round(ratio*1000)/1000 });
+    });
+    document.querySelectorAll('.leaf').forEach(function(node){
+      var id = node.getAttribute('data-node-id');
+      var data = nodesData[id];
+      openCard(id, {keyboard:false});
+      var cr = mapCard.getBoundingClientRect(), nr = node.getBoundingClientRect();
+      var overlap = !(cr.right <= nr.left || cr.left >= nr.right || cr.bottom <= nr.top || cr.top >= nr.bottom);
+      var inside = cr.left >= -0.5 && cr.top >= -0.5 && cr.right <= 1280.5 && cr.bottom <= 720.5;
+      out.cards.push({ id:id, branch:data.branch, lines:data.lines.length, source:data.source, side:mapCard.classList.contains('pos-left')?'left':'right', overlap:overlap, inside:inside });
+      closeCard(false);
+    });
+    return out;
+  }
+
+  function runQA(){
+    var out = { errors: window.__errors.slice(), slides: slides.length, notes: notesData.length, nodes: document.querySelectorAll('.leaf').length, keyboard:{}, motionOff:false, notesCount:0, overflow:[], cards:[], rails:[] };
+    var original = state.index;
+    goTo(1, {instant:true, force:true});
+    try { document.getAnimations().forEach(function(a){ try { a.finish(); } catch(e){} }); } catch(e){}
+    var m = measure();
+    out.overflow = m.overflow;
+    out.cards = m.cards;
+    out.rails = m.rails;
+    var nodes = Array.prototype.slice.call(document.querySelectorAll('.leaf'));
+    if (nodes.length) {
+      nodes[nodes.length-1].focus();
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true}));
+      out.keyboard.tabWrapForward = document.activeElement === nodes[0];
+      nodes[0].focus();
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true}));
+      out.keyboard.tabWrapBackward = document.activeElement === nodes[nodes.length-1];
+      nodes[0].focus();
+      nodes[0].click();
+      out.keyboard.enterOpens = state.cardOpen;
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      out.keyboard.escCloses = !state.cardOpen;
+      out.keyboard.focusReturns = document.activeElement === nodes[0];
+    }
+    openCard('deinst', {keyboard:false});
+    mapCard.querySelector('.map-card-close').click();
+    out.keyboard.closeX = !state.cardOpen;
+    openCard('deinst', {keyboard:false});
+    document.querySelector('.slide[data-id="map"]').click();
+    out.keyboard.closeBlank = !state.cardOpen;
+    out.keyboard.closeBlankFocus = document.activeElement === document.querySelector('.leaf[data-node-id="deinst"]');
+    openCard('deinst', {keyboard:false});
+    openCard('deinst', {keyboard:false});
+    out.keyboard.closeSame = !state.cardOpen;
+    openCard('deinst', {keyboard:false});
+    document.dispatchEvent(new KeyboardEvent('keydown',{key:'n',bubbles:true}));
+    out.keyboard.nClosesCard = !state.cardOpen && state.notesOpen;
+    if (state.notesOpen) toggleNotes();
+    var wasNotes = state.notesOpen;
+    if (!wasNotes) toggleNotes();
+    out.notesCount = notesEl.querySelectorAll('.note').length;
+    out.keyboard.nOpensNotes = state.notesOpen && out.notesCount === 11;
+    if (!wasNotes) {
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      out.keyboard.escClosesNotes = !state.notesOpen && notesEl.hidden;
+    } else {
+      toggleNotes();
+    }
+    var wasMotion = state.motion;
+    if (wasMotion) toggleMotion();
+    out.motionOff = document.body.classList.contains('no-motion');
+    if (wasMotion) toggleMotion();
+    goTo(original, {instant:true, force:true});
+    var pre = document.createElement('pre');
+    pre.id = 'qa-result';
+    pre.style.display = 'none';
+    pre.textContent = JSON.stringify(out);
+    document.body.appendChild(pre);
+    document.title = 'QA_OK';
+  }
+
+  function runNavQA(){
+    var out = { steps: [], end: null, afterEnd: null, errors: window.__errors.slice() };
+    goTo(0, {instant:true, force:true});
+    var i = 0;
+    function step(){
+      if (i < 10) {
+        next(); i++; out.steps.push(state.index);
+        setTimeout(step, 280);
+      } else {
+        out.end = state.index;
+        setTimeout(function(){
+          next();
+          out.afterEnd = state.index;
+          var pre = document.createElement('pre');
+          pre.id = 'qa-result';
+          pre.style.display = 'none';
+          pre.textContent = JSON.stringify(out);
+          document.body.appendChild(pre);
+          document.title = 'QA_NAV';
+        }, 280);
+      }
+    }
+    setTimeout(step, 280);
+  }
+
+  function runNumbersQA(){
+    var out = { early: {}, late: {}, errors: window.__errors.slice(), ok: false };
+    var original = state.index;
+    goTo(8, {instant:true, force:true});
+    runEntrance(slides[8]);
+    setTimeout(function(){
+      var n76 = document.querySelector('[data-num="76"]');
+      var n1500 = document.querySelector('[data-num="1500"]');
+      var bar76 = document.querySelector('[data-bar=".76"]');
+      var barAnim = bar76 && bar76.getAnimations ? bar76.getAnimations()[0] : null;
+      out.early = {
+        n76: n76 ? n76.textContent : null,
+        n1500: n1500 ? n1500.textContent : null,
+        bar76: bar76 ? getComputedStyle(bar76).transform : null,
+        barAnimDuration: barAnim ? barAnim.effect.getTiming().duration : null
+      };
+      setTimeout(function(){
+        var n76b = document.querySelector('[data-num="76"]');
+        var n1500b = document.querySelector('[data-num="1500"]');
+        var bar76b = document.querySelector('[data-bar=".76"]');
+        out.late = {
+          n76: n76b ? n76b.textContent : null,
+          n1500: n1500b ? n1500b.textContent : null,
+          bar76: bar76b ? getComputedStyle(bar76b).transform : null
+        };
+        out.ok = out.late.n76 === '76%' && out.late.n1500 === '1500' && out.early.n76 !== out.late.n76 && out.early.barAnimDuration === 900;
+        var pre = document.createElement('pre');
+        pre.id = 'qa-result';
+        pre.style.display = 'none';
+        pre.textContent = JSON.stringify(out);
+        document.body.appendChild(pre);
+        document.title = 'QA_NUMBERS';
+        goTo(original, {instant:true, force:true});
+      }, 1600);
+    }, 120);
+  }
+
+  function init(){
+    scaleStage();
+    window.addEventListener('resize', scaleStage);
+    renderNotes();
+    slides.forEach(function(s, i){
+      s.inert = i !== 0;
+      s.setAttribute('aria-hidden', i === 0 ? 'false' : 'true');
+    });
+    document.querySelectorAll('.leaf').forEach(function(node){
+      node.setAttribute('aria-controls','map-card');
+      node.setAttribute('aria-expanded','false');
+      node.addEventListener('click', function(e){
+        e.stopPropagation();
+        openCard(this.getAttribute('data-node-id'), {keyboard:false});
+      });
+    });
+    mapCard.querySelector('.map-card-close').addEventListener('click', function(e){ e.stopPropagation(); closeCard(true); });
+    mapCard.addEventListener('click', function(e){ e.stopPropagation(); });
+    document.addEventListener('click', function(e){
+      if (!state.cardOpen) return;
+      if (e.target.closest('.map-card') || e.target.closest('.leaf')) return;
+      closeCard(true);
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.defaultPrevented) return;
+      var key = e.key;
+      var inLeaf = e.target && e.target.classList && e.target.classList.contains('leaf');
+      if (key === 'Escape') {
+        if (state.cardOpen) { e.preventDefault(); closeCard(true); return; }
+        if (state.notesOpen) { e.preventDefault(); closeNotes(); return; }
+        return;
+      }
+      if (key === 'n' || key === 'N') { e.preventDefault(); toggleNotes(); return; }
+      if (key === 'f' || key === 'F') { e.preventDefault(); toggleFullscreen(); return; }
+      if (key === 'a' || key === 'A') { e.preventDefault(); toggleMotion(); return; }
+      if (key === 'p' || key === 'P') { e.preventDefault(); printDeck(); return; }
+      if (key === 'Home') { e.preventDefault(); goTo(0); return; }
+      if (key === 'End') { e.preventDefault(); goTo(slides.length - 1); return; }
+      if (key === 'ArrowLeft' || key === 'PageUp') { e.preventDefault(); prev(); return; }
+      if (key === 'ArrowRight' || key === 'PageDown' || key === ' ') {
+        if (inLeaf) return;
+        e.preventDefault(); next(); return;
+      }
+      if (key === 'Tab') {
+        if (state.cardOpen) return;
+        var all = Array.prototype.slice.call(document.querySelectorAll('.leaf'));
+        var idx = all.indexOf(document.activeElement);
+        if (idx !== -1) {
+          if (!e.shiftKey && idx === all.length - 1) { e.preventDefault(); all[0].focus(); }
+          if (e.shiftKey && idx === 0) { e.preventDefault(); all[all.length - 1].focus(); }
+        }
+      }
+    });
+    window.addEventListener('beforeprint', function(){
+      closeCard(false);
+      slides.forEach(function(s){ setFinal(s); });
+    });
+    var params = new URLSearchParams(location.search);
+    if (params.has('shot')) document.body.classList.add('shot-mode');
+    var jumped = false;
+    if (params.has('p')) {
+      var n = parseInt(params.get('p'), 10);
+      if (!isNaN(n)) { goTo(n, {instant:true, force:true}); jumped = true; }
+    }
+    if (params.has('card')) {
+      setTimeout(function(){ openCard(params.get('card'), {keyboard:false}); }, 80);
+    }
+    if (params.has('notes')) {
+      setTimeout(function(){ if (!state.notesOpen) toggleNotes(); }, 80);
+    }
+    if (jumped) setFinal(slides[state.index]); else runEntrance(slides[state.index]);
+    updateNotes();
+    if (params.get('qa') === 'nav') setTimeout(runNavQA, 300);
+    else if (params.get('qa') === 'numbers') setTimeout(runNumbersQA, 300);
+    else if (params.has('qa')) setTimeout(runQA, 400);
+  }
+
+  window.__deck = { goTo: goTo, next: next, prev: prev, state: state, openCard: openCard, closeCard: closeCard, toggleNotes: toggleNotes, closeNotes: closeNotes, toggleMotion: toggleMotion, printDeck: printDeck, measure: measure, runQA: runQA };
+  init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "tabWrapForward": true,
+  "tabWrapBackward": true,
+  "enterOpens": true,
+  "escCloses": true,
+  "focusReturns": true,
+  "closeX": true,
+  "closeBlank": true,
+  "closeBlankFocus": true,
+  "closeSame": true,
+  "nClosesCard": true,
+  "nOpensNotes": true,
+  "escClosesNotes": true
+}

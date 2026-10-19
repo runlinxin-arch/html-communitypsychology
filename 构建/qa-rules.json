@@ -1,0 +1,23 @@
+{
+  "version": "1.1",
+  "page_citations": "disabled",
+  "timecodes_total_seconds": 460,
+  "screen_banned": ["23.4", "1844", "1892", "阅读报告"],
+  "p10_banned": ["15 万"],
+  "p9_banned": ["99%"],
+  "notes_allowed": ["23.4%"],
+  "p2_summary": {
+    "lines": [3, 4],
+    "max_chars_per_line": 28,
+    "allowed_tokens": ["1980s", "1990s", "2000–2002", "DSM-III", "DSM-III-R", "DSM-IV", "6%"],
+    "banned": ["%", "万", "天", "美元", "我的读法"]
+  },
+  "required": {
+    "slides": 11,
+    "notes": 11,
+    "p2_nodes": 22,
+    "p11_index_rows": 6,
+    "p11_citations": 8,
+    "pdf_pages": 11
+  }
+}

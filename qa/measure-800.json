@@ -1,0 +1,338 @@
+{
+  "errors": [],
+  "slides": 11,
+  "notes": 11,
+  "nodes": 22,
+  "keyboard": {
+    "tabWrapForward": true,
+    "tabWrapBackward": true,
+    "enterOpens": true,
+    "escCloses": true,
+    "focusReturns": true,
+    "closeX": true,
+    "closeBlank": true,
+    "closeBlankFocus": true,
+    "closeSame": true,
+    "nClosesCard": true,
+    "nOpensNotes": true,
+    "escClosesNotes": true
+  },
+  "motionOff": true,
+  "notesCount": 11,
+  "overflow": [
+    {
+      "id": "title",
+      "index": 0,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "map",
+      "index": 1,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "opening",
+      "index": 2,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "era-premodern",
+      "index": 3,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "era-asylum",
+      "index": 4,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "era-medical",
+      "index": 5,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "era-deinst",
+      "index": 6,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "era-transinst",
+      "index": 7,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "era-programs",
+      "index": 8,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "conclusion",
+      "index": 9,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    },
+    {
+      "id": "sources",
+      "index": 10,
+      "right": 0,
+      "bottom": 0,
+      "whoR": "",
+      "whoB": ""
+    }
+  ],
+  "cards": [
+    {
+      "id": "eca",
+      "branch": "01",
+      "lines": 4,
+      "source": "教材《精神疾病的流行病学估计》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "ncs",
+      "branch": "01",
+      "lines": 4,
+      "source": "教材《精神疾病的流行病学估计》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "ncsr",
+      "branch": "01",
+      "lines": 4,
+      "source": "教材《精神疾病的流行病学估计》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "community",
+      "branch": "01",
+      "lines": 4,
+      "source": "教材《精神疾病的流行病学估计》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "medical",
+      "branch": "02",
+      "lines": 4,
+      "source": "教材《精神健康和精神障碍的理论模型》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "psychoanalysis",
+      "branch": "02",
+      "lines": 4,
+      "source": "教材《精神健康和精神障碍的理论模型》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "behaviorism",
+      "branch": "02",
+      "lines": 4,
+      "source": "教材《精神健康和精神障碍的理论模型》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "humanism",
+      "branch": "02",
+      "lines": 4,
+      "source": "教材《精神健康和精神障碍的理论模型》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "limits",
+      "branch": "02",
+      "lines": 4,
+      "source": "教材《精神健康和精神障碍的理论模型》",
+      "side": "right",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "premodern",
+      "branch": "03",
+      "lines": 4,
+      "source": "教材《精神健康护理简史》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "asylum",
+      "branch": "03",
+      "lines": 4,
+      "source": "教材《精神健康护理简史》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "medicalization",
+      "branch": "03",
+      "lines": 4,
+      "source": "教材《精神健康护理简史》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "deinst",
+      "branch": "03",
+      "lines": 4,
+      "source": "教材《去机构化》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "transinst",
+      "branch": "03",
+      "lines": 4,
+      "source": "教材《机构化的早期选择》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "programs",
+      "branch": "03",
+      "lines": 4,
+      "source": "教材《针对精神障碍个体的示范项目》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "cost",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《战斗还在继续：路在何方》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "prevention",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《战斗还在继续：路在何方》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "stigma",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《战斗还在继续：路在何方》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "fragmentation",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《战斗还在继续：路在何方》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "mindbody",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《战斗还在继续：路在何方》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "culture",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《战斗还在继续：路在何方》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    },
+    {
+      "id": "whotreats",
+      "branch": "04",
+      "lines": 4,
+      "source": "教材《案例 6-1》",
+      "side": "left",
+      "overlap": false,
+      "inside": true
+    }
+  ],
+  "rails": [
+    {
+      "id": "era-premodern",
+      "ratio": 0
+    },
+    {
+      "id": "era-asylum",
+      "ratio": 0.18
+    },
+    {
+      "id": "era-medical",
+      "ratio": 0.36
+    },
+    {
+      "id": "era-deinst",
+      "ratio": 0.62
+    },
+    {
+      "id": "era-transinst",
+      "ratio": 0.68
+    },
+    {
+      "id": "era-programs",
+      "ratio": 0.9
+    }
+  ]
+}
